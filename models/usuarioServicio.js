@@ -29,6 +29,27 @@ const ServicioSchema = Schema({
         default: true,
       
     },
+    direccion:{
+        type: String,
+        required: [true, 'la direccion es requerida']
+    },
+    ocultardireccion:{
+        type: Boolean,
+        default: false,
+    },
+    Provicia:{
+        type: String,
+        required: [true, 'la Provicia es requerida']
+    },
+    Ciudad:{
+        type: String,
+        required: [true, 'la Ciudad es requerida']
+    },
+    Barrio:{
+        type: String,
+        
+    },
+    
     rubro:{
         type: String,
         required: [true, 'el rubro es requerida']
@@ -36,10 +57,6 @@ const ServicioSchema = Schema({
     servicio:{
         type: String,
         required: [true, 'el servicio es requerida']
-    },
-    direccion:{
-        type: String,
-    
     },
     experiencia:{
         type: String,
