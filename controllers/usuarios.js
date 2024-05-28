@@ -22,7 +22,7 @@ const usuariosGet = (req = request, res = response) => {
 
 const usuariosServicioPost = async (req, res = response) => {
 
-    const { nombre, correo, password, rol } = req.body;
+    const body = req.body;
 
     const usuario = new User_Servicio(body);
 
@@ -30,7 +30,7 @@ const usuariosServicioPost = async (req, res = response) => {
 
     res.json({
         msg: 'post API - usuariosPost',
-        nombre, 
+        body
       
     });
 }
@@ -51,7 +51,7 @@ const usuariosCompradorPost = async (req, res = response) => {
 
 const usuariosVendedorPost = async (req, res = response) => {
 
-    const { nombre, correo, password, rol  } = req.body;
+    const body = req.body;
 
     const usuarioVendedor = new User_Vendedor(body);
     const usuarioComprador = new User_Comprador(body);
@@ -61,7 +61,7 @@ const usuariosVendedorPost = async (req, res = response) => {
 
     res.json({
         msg: 'post API - usuariosPost',
-        nombre, 
+        body, 
         
     });
 }
@@ -76,11 +76,7 @@ const usuariosPut = (req, res = response) => {
     });
 }
 
-const usuariosPatch = (req, res = response) => {
-    res.json({
-        msg: 'patch API - usuariosPatch'
-    });
-}
+
 
 const usuariosDelete = (req, res = response) => {
     res.json({
@@ -96,6 +92,6 @@ module.exports = {
     usuariosServicioPost,
     usuariosCompradorPost,
     usuariosVendedorPost,
-    usuariosPatch,
-    usuariosDelete
+    usuariosDelete,
+    usuariosPut
 }

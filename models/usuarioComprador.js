@@ -19,7 +19,7 @@ const ServicioSchema = Schema({
     rol:{
         type: String,
         required: true,
-        enum: 'USER_BUYER'
+        enum: ['USER_BUYER', 'USER_SELLER']
     }, 
     estado:{
         type: Boolean,
