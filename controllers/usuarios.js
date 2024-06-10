@@ -6,6 +6,7 @@ const bcryptjs = require('bcryptjs');
 const User_Servicio = require('../models/usuarioServicio')
 const User_Comprador = require('../models/usuarioComprador')
 const User_Vendedor = require('../models/usuarioVendedor')
+const User_Admin = require('../models/usuarioAdmin')
 
 const usuariosGetTotal = async(req = request, res = response) => {
     const { limite = 5, desde = 0 } = req.query;
@@ -63,8 +64,23 @@ const usuariosGetTotal = async(req = request, res = response) => {
     }
 };
 
-const getUsuario = (req, res) => {
-    
+const getUsuario = async (req, res) => {
+    const {id} = req.query;
+
+
+    try {
+        const usuario =  await User_Servicio.findById( id ) || await User_Vendedor.findById(id) || await User_Comprador.findById(id) || await User_Admin.findById(id) ;
+
+        res.status(200).json(usuario)
+    } catch (error) {
+        res.status(500).json({
+            msg: error
+        })
+    }
+   
+
+
+
 }
 
 
@@ -83,7 +99,7 @@ const usuariosServicioPost = async (req, res = response) => {
     await usuario.save()
 
     res.json({
-        msg: 'post API - usuariosPost',
+        
         usuario
       
     });
@@ -101,12 +117,29 @@ const usuariosCompradorPost = async (req, res = response) => {
     await usuario.save()
 
     res.json({
-        msg: 'post API - usuariosPost',
+       
         usuario
      
     });
 }
+const AdminPost = async (req, res = response) => {
+        
+    let {password, ...resto} = req.body;
 
+    const usuario = new User_Admin({password, ...resto});
+
+    // Encriptar la contraseña
+    const salt = bcryptjs.genSaltSync();
+    usuario.password = bcryptjs.hashSync( password, salt );
+
+    await usuario.save()
+
+    res.json({
+       
+        usuario
+     
+    });
+}
 const usuariosVendedorPost = async (req, res = response) => {
 
     let {password, ...resto} = req.body;
@@ -174,10 +207,24 @@ const usuariosPut = async (req, res = response) => {
 
 
 
-const usuariosDelete = (req, res = response) => {
-    res.json({
-        msg: 'delete API - usuariosDelete'
-    });
+const usuariosDelete = async(req, res = response) => {
+    const { id } = req.query;
+
+
+    // Buscar el usuario en las tres colecciones
+    let user = await User_Servicio.findById(id) || await User_Vendedor.findById(id) || await User_Comprador.findById(id);
+
+    if (!user) {
+        return res.status(404).json({
+            msg: 'Usuario no encontrado'
+        });
+    }
+
+    // Actualizar el estado del usuario encontrado
+    user.estado = false;
+    await user.save();
+    
+    res.json(user);
 }
 
 
@@ -189,5 +236,7 @@ module.exports = {
     usuariosCompradorPost,
     usuariosVendedorPost,
     usuariosDelete,
-    usuariosPut
+    usuariosPut,
+    AdminPost,
+    getUsuario
 }

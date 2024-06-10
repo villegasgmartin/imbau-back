@@ -1,4 +1,3 @@
-
 const {Schema, model } = require('mongoose');
 
 const UserSchema = Schema({
@@ -19,13 +18,14 @@ const UserSchema = Schema({
     rol:{
         type: String,
         required: true,
-        enum: 'USER_SELLER'
-    },
+        enum: ['USER_ADMIN']
+    }, 
     estado:{
         type: Boolean,
         default: true,
       
     }
+    
 })
 
 UserSchema.methods.toJSON = function() {
@@ -34,4 +34,4 @@ UserSchema.methods.toJSON = function() {
     return usuario;
 }
 
-module.exports= model('User_Vendedor', UserSchema)
+module.exports= model('User_Admin', UserSchema)

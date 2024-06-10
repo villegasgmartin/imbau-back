@@ -1,7 +1,12 @@
 const { response, request } = require('express');
 const jwt = require('jsonwebtoken');
 
-const Usuario = require('../models/usuario');
+//modelos de usuario
+const User_Servicio = require('../models/usuarioServicio')
+const User_Comprador = require('../models/usuarioComprador')
+const User_Vendedor = require('../models/usuarioVendedor')
+const User_Admin = require('../models/usuarioAdmin')
+
 
 
 const validarJWT = async( req = request, res = response, next ) => {
@@ -17,9 +22,12 @@ const validarJWT = async( req = request, res = response, next ) => {
     try {
         
         const { uid } = jwt.verify( token, process.env.SECRETORPRIVATEKEY );
+        console.log(uid)
 
         // leer el usuario que corresponde al uid
-        const usuario = await Usuario.findById( uid );
+        const usuario = await User_Servicio.findById( uid ) || await User_Vendedor.findById(uid) || await User_Comprador.findById(uid) || await User_Admin.findById(uid) ;
+
+        
 
         if( !usuario ) {
             return res.status(401).json({
