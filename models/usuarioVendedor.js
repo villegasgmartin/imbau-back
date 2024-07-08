@@ -19,7 +19,7 @@ const UserSchema = Schema({
     rol:{
         type: String,
         required: true,
-        enum: 'USER_SELLER'
+        enum: ['USER_BUYER', 'USER_SELLER']
     },
     estado:{
         type: Boolean,

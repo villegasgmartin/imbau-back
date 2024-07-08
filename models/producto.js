@@ -71,4 +71,4 @@ const ServicioSchema = Schema({
     },
 })
 
-module.exports= model('USer_Servicio', ServicioSchema)
+module.exports= model('product', ServicioSchema)

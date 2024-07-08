@@ -2,9 +2,7 @@ const { response, request } = require('express');
 const jwt = require('jsonwebtoken');
 
 //modelos de usuario
-const User_Servicio = require('../models/usuarioServicio')
-const User_Comprador = require('../models/usuarioComprador')
-const User_Vendedor = require('../models/usuarioVendedor')
+const User = require('../models/usuario')
 const User_Admin = require('../models/usuarioAdmin')
 
 
@@ -25,7 +23,7 @@ const validarJWT = async( req = request, res = response, next ) => {
         console.log(uid)
 
         // leer el usuario que corresponde al uid
-        const usuario = await User_Servicio.findById( uid ) || await User_Vendedor.findById(uid) || await User_Comprador.findById(uid) || await User_Admin.findById(uid) ;
+        const usuario = await User.findById( uid ) || await User_Admin.findById(uid) ;
 
         
 

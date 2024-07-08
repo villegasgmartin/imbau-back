@@ -19,7 +19,7 @@ const UserSchema = Schema({
     rol:{
         type: String,
         required: true,
-        enum: ['USER_BUYER', 'USER_SELLER']
+        enum: ['USER_BUYER', 'USER_SELLER', 'USER_SERVICE']
     }, 
     estado:{
         type: Boolean,
@@ -35,4 +35,4 @@ UserSchema.methods.toJSON = function() {
     return usuario;
 }
 
-module.exports= model('User_Comprador', UserSchema)
+module.exports= model('User', UserSchema)

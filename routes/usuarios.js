@@ -16,9 +16,7 @@ const { esRoleValido, emailExiste, existeUsuarioPorId } = require('../helpers/db
 
 
 const {  usuariosGetTotal,
-        usuariosServicioPost,
-        usuariosCompradorPost,
-        usuariosVendedorPost,
+        usuariosPost,
         usuariosDelete,
         usuariosPut,
         AdminPost,
@@ -35,38 +33,21 @@ router.get('/usuarios', usuariosGetTotal );
 //*******rutas de login de usuarios*********
 
 
-router.post('/new-seller',
-check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-check('password', 'El password debe de ser más de 6 letras').isLength({ min: 6 }),
-check('correo', 'El correo no es válido').isEmail(),
-check('correo').custom( emailExiste ),
-// check('rol', 'No es un rol válido').isIn(['ADMIN_ROLE','USER_ROLE']),
-check('rol').custom( esRoleValido ), 
-validarCampos
-, usuariosVendedorPost );
+
 
 
 // router.post('/new-buyer', usuariosCompradorPost );
-router.post('/new-buyer', 
+router.post('/login', 
 check('nombre', 'El nombre es obligatorio').not().isEmpty(),
 check('password', 'El password debe de ser más de 6 letras').isLength({ min: 6 }),
 check('correo', 'El correo no es válido').isEmail(),
 check('correo').custom( emailExiste ),
-// check('rol', 'No es un rol válido').isIn(['ADMIN_ROLE','USER_ROLE']),
 check('rol').custom( esRoleValido ), 
 validarCampos
-,usuariosCompradorPost );
+,usuariosPost );
 
 
-router.post('/new-service',
-check('nombre', 'El nombre es obligatorio').not().isEmpty(),
-check('password', 'El password debe de ser más de 6 letras').isLength({ min: 6 }),
-check('correo', 'El correo no es válido').isEmail(),
-check('correo').custom( emailExiste ),
-// check('rol', 'No es un rol válido').isIn(['ADMIN_ROLE','USER_ROLE']),
-check('rol').custom( esRoleValido ), 
-validarCampos
-,usuariosServicioPost );
+
 
 
 //**admin post */

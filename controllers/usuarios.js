@@ -3,9 +3,7 @@ const bcryptjs = require('bcryptjs');
 
 
 //modelos de usuario
-const User_Servicio = require('../models/usuarioServicio')
-const User_Comprador = require('../models/usuarioComprador')
-const User_Vendedor = require('../models/usuarioVendedor')
+const User = require('../models/usuario')
 const User_Admin = require('../models/usuarioAdmin')
 
 const usuariosGetTotal = async(req = request, res = response) => {
@@ -14,43 +12,41 @@ const usuariosGetTotal = async(req = request, res = response) => {
 
     try {
         // Obtener el conteo total de documentos en las tres colecciones
-        const [ totalServicio, totalComprador, totalVendedor ] = await Promise.all([
-            User_Servicio.countDocuments(query),
-            User_Comprador.countDocuments(query),
-            User_Vendedor.countDocuments(query),
+        const totalUsuarios = await Promise.all([
+            User.countDocuments(query),
         ]);
 
-        const total = totalServicio + totalComprador + totalVendedor;
+        const total = totalUsuarios;
 
         let usuarios = [];
         let skip = Number(desde);
         let limit = Number(limite);
 
         // Obtener los usuarios de User_Servicio
-        if (skip < totalServicio) {
-            const usuariosServicio = await User_Servicio.find(query).skip(skip).limit(limit).exec();
-            usuarios = usuariosServicio;
-            limit -= usuariosServicio.length;
+        if (skip < totalUsuarios) {
+            const totalUsuarios = await User.find(query).skip(skip).limit(limit).exec();
+            usuarios = totalUsuarios;
+            limit -= totalUsuarios.length;
             skip = 0;
         } else {
-            skip -= totalServicio;
+            skip -= totalUsuarios;
         }
 
-        // Obtener los usuarios de User_Comprador si aún queda límite
-        if (limit > 0 && skip < totalComprador) {
-            const usuariosComprador = await User_Comprador.find(query).skip(skip).limit(limit).exec();
-            usuarios = usuarios.concat(usuariosComprador);
-            limit -= usuariosComprador.length;
-            skip = 0;
-        } else {
-            skip -= totalComprador;
-        }
+        // // Obtener los usuarios de User_Comprador si aún queda límite
+        // if (limit > 0 && skip < totalComprador) {
+        //     const usuariosComprador = await User_Comprador.find(query).skip(skip).limit(limit).exec();
+        //     usuarios = usuarios.concat(usuariosComprador);
+        //     limit -= usuariosComprador.length;
+        //     skip = 0;
+        // } else {
+        //     skip -= totalComprador;
+        // }
 
-        // Obtener los usuarios de User_Vendedor si aún queda límite
-        if (limit > 0) {
-            const usuariosVendedor = await User_Vendedor.find(query).skip(skip).limit(limit).exec();
-            usuarios = usuarios.concat(usuariosVendedor);
-        }
+        // // Obtener los usuarios de User_Vendedor si aún queda límite
+        // if (limit > 0) {
+        //     const usuariosVendedor = await User_Vendedor.find(query).skip(skip).limit(limit).exec();
+        //     usuarios = usuarios.concat(usuariosVendedor);
+        // }
 
         res.json({
             total,
@@ -69,7 +65,7 @@ const getUsuario = async (req, res) => {
 
 
     try {
-        const usuario =  await User_Servicio.findById( id ) || await User_Vendedor.findById(id) || await User_Comprador.findById(id) || await User_Admin.findById(id) ;
+        const usuario =  await User.findById( id ) || await User_Admin.findById(id) ;
 
         res.status(200).json(usuario)
     } catch (error) {
@@ -86,29 +82,11 @@ const getUsuario = async (req, res) => {
 
 
 
-const usuariosServicioPost = async (req, res = response) => {
-
-    let {password, ...resto} = req.body;
-
-    const usuario = new User_Servicio({password, ...resto});
-
-     // Encriptar la contraseña
-     const salt = bcryptjs.genSaltSync();
-     usuario.password = bcryptjs.hashSync( password, salt );
-
-    await usuario.save()
-
-    res.json({
-        
-        usuario
-      
-    });
-}
-const usuariosCompradorPost = async (req, res = response) => {
+const usuariosPost = async (req, res = response) => {
         
     let {password, ...resto} = req.body;
 
-    const usuario = new User_Comprador({password, ...resto});
+    const usuario = new User({password, ...resto});
 
     // Encriptar la contraseña
     const salt = bcryptjs.genSaltSync();
@@ -169,7 +147,7 @@ const usuariosPut = async (req, res = response) => {
     const { _id, password, correo, ...resto } = req.body;
 
      // Buscar el usuario en las tres colecciones
-     let user = await User_Servicio.findById(id) || await User_Vendedor.findById(id) || await User_Comprador.findById(id);
+     let user = await User.findById(id)
 
      if (!user) {
          return res.status(404).json({
@@ -177,7 +155,7 @@ const usuariosPut = async (req, res = response) => {
          });
      }
  
-     const { rol } = user; 
+    
 
     if ( password ) {
         // Encriptar la contraseña
@@ -186,22 +164,8 @@ const usuariosPut = async (req, res = response) => {
     }
 
     
-
-    switch (rol) {
-        case 'USER_SERVICE':
-            usuario = await User_Servicio.findByIdAndUpdate( id, resto );
-            break;
-        case 'USER_SELLER':
-            usuario = await User_Vendedor.findByIdAndUpdate( id, resto );
-        break;
-        case 'USER_BUYER':
-            usuario = await User_Comprador.findByIdAndUpdate( id, resto );
-        break;
-        default:
-            break;
-    }  
+        usuario = await User.findByIdAndUpdate( id, resto );
     
-
     res.json(usuario);
 }
 
@@ -212,7 +176,7 @@ const usuariosDelete = async(req, res = response) => {
 
 
     // Buscar el usuario en las tres colecciones
-    let user = await User_Servicio.findById(id) || await User_Vendedor.findById(id) || await User_Comprador.findById(id);
+    let user = await User.findById(id)
 
     if (!user) {
         return res.status(404).json({
@@ -232,9 +196,7 @@ const usuariosDelete = async(req, res = response) => {
 
 module.exports = {
     usuariosGetTotal,
-    usuariosServicioPost,
-    usuariosCompradorPost,
-    usuariosVendedorPost,
+    usuariosPost,
     usuariosDelete,
     usuariosPut,
     AdminPost,
