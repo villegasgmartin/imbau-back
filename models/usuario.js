@@ -18,8 +18,7 @@ const UserSchema = Schema({
     
     rol:{
         type: String,
-        required: true,
-        enum: ['USER_BUYER']
+        required: true
     }, 
     estado:{
         type: Boolean,
