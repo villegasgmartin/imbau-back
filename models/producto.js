@@ -2,6 +2,9 @@
 const {Schema, model } = require('mongoose');
 
 const ServicioSchema = Schema({
+    usuario: [
+        { type: Schema.Types.ObjectId, ref: 'User' }
+    ],
     nombre:{
         type: String,
         required: true,
@@ -56,11 +59,11 @@ const ServicioSchema = Schema({
         required: true,
     },
     garantia:{
-        type: String,
+        type: Boolean,
         required: true,
     },
     factura:{
-        type: String,
+        type: Boolean,
         required: true,
     },
     
@@ -68,7 +71,8 @@ const ServicioSchema = Schema({
         type: Number,
         required: true
     
-    },
+    }
+   
 })
 
-module.exports= model('product', ServicioSchema)
+module.exports= model('Product', ServicioSchema)
