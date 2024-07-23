@@ -64,7 +64,7 @@ const crearServicio = async (req, res) =>{
     try {
         await servicio.save()
         res.status(200).json({
-            msg: 'producto creado',
+            msg: 'servicio creado',
             servicio
         })
 
@@ -115,7 +115,7 @@ const getServicios = async(req, res)=>{
     }
 }
 
-const getProductoPorUsuario = async(req = request, res = response) => {
+const getProductoPorUsuario = async(req, res = response) => {
     const { limite = 5, desde = 0 } = req.query;
     const uid = req.uid
 
@@ -144,9 +144,12 @@ const getProductoPorUsuario = async(req = request, res = response) => {
             skip -= totalProductos;
         }
 
+        const productoslistados = await Producto.find(query)
+
+
         res.json({
             total,
-            totalProductos
+            productoslistados
         });
     } catch (error) {
         console.error(error);
@@ -156,10 +159,209 @@ const getProductoPorUsuario = async(req = request, res = response) => {
     }
 };
 
+const getServicioPorUsuario = async(req, res = response) => {
+    const { limite = 5, desde = 0 } = req.query;
+    const uid = req.uid
+
+
+    const query = { usuario: uid };
+
+    try {
+        // Obtener el conteo total de documentos en las
+        const totalServicios = await Promise.all([
+            Servicio.countDocuments(query),
+        ]);
+
+        const total = totalServicios;
+
+        let productos = [];
+        let skip = Number(desde);
+        let limit = Number(limite);
+
+        // Obtener los usuarios de User_Servicio
+        if (skip < totalServicios) {
+            const totalServicios = await Servicio.find(query).skip(skip).limit(limit).exec();
+            productos = totalServicios;
+            limit -= totalServicios.length;
+            skip = 0;
+        } else {
+            skip -= totalServicios;
+        }
+
+        const servicioslistados = await Servicio.find(query)
+
+        res.json({
+            total,
+            servicioslistados
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            msg: 'Error en el servidor'
+        });
+    }
+};
+
+const actualizarProducto = async(req, res) => {
+    const { id } = req.query;
+    const {...body } = req.body;
+    const uid = req.uid;
+
+    try {
+        const usuario = await User.findById(uid);
+
+        if (!usuario) {
+            return res.status(404).json({
+                msg: 'Debe estar logueado para actualizar productos'
+            });
+        }
+
+        // Buscamos y actualizamos el producto
+        let producto = await Producto.findOneAndUpdate(
+            { _id: id, usuario: uid },
+            body,
+            { new: true }
+        );
+
+
+
+        if (!producto) {
+            return res.status(404).json({
+                msg: 'Producto no encontrado o no pertenece al usuario'
+            });
+        }
+
+        res.json(producto);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        });
+    }
+};
+
+
+const actualizarServicio = async (req, res) => {
+    const { id } = req.query;
+    const { ...body } = req.body;
+    const uid = req.uid;
+
+    try {
+        const usuario = await User.findById(uid);
+
+        if (!usuario) {
+            return res.status(404).json({
+                msg: 'Debe estar logueado para actualizar servicios'
+            });
+        }
+
+        // Buscamos y actualizamos el servicio
+        let servicio = await Servicio.findOneAndUpdate(
+            { _id: id, usuario: uid },
+            body,
+            { new: true }
+        );
+
+        if (!servicio) {
+            return res.status(404).json({
+                msg: 'Servicio no encontrado o no pertenece al usuario'
+            });
+        }
+
+        res.json(servicio);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        });
+    }
+};
+
+
+eliminarServicio = async(req, res)=>{
+    const { id} = req.query;
+
+    const uid = req.uid
+    
+    try {
+        const usuario = await User.findById(uid);
+ 
+        if(!usuario){
+            return res.status(404).json({
+                msg:'debe estar logiado para ver las eliminar Servicios'
+            })
+        }
+
+        const servicioEliminado = await Servicio.findByIdAndDelete({_id:id, usuario:uid})
+
+        if (!servicioEliminado) {
+            return res.status(404).json({
+                msg: 'Servicio no encontrado o no pertenece al usuario'
+            });
+        }
+
+
+        res.status(200).json({
+            msg: 'servicio Eliminado',
+            servicioEliminado
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({
+            msg: 'error'
+        })
+    }
+    
+}
+
+
+eliminarProducto = async(req, res)=>{
+    const { id} = req.query;
+
+    const uid = req.uid
+    
+    try {
+        const usuario = await User.findById(uid);
+ 
+        if(!usuario){
+            return res.status(404).json({
+                msg:'debe estar logiado para ver las eliminar Producto'
+            })
+        }
+
+        const productoEliminado = await Producto.findByIdAndDelete({_id:id, usuario:uid})
+
+        if (!productoEliminado) {
+            return res.status(404).json({
+                msg: 'Producto no encontrado o no pertenece al usuario'
+            });
+        }
+
+
+        res.status(200).json({
+            msg: 'Producto Eliminado',
+            productoEliminado
+        })
+
+    } catch (error) {
+        console.log(error);
+        res.status(404).json({
+            msg: 'error'
+        })
+    }
+    
+}
+
 module.exports ={
     crearProducto,
     crearServicio,
     getProductos,
     getServicios,
-    getProductoPorUsuario
+    getProductoPorUsuario,
+    getServicioPorUsuario,
+    eliminarProducto,
+    eliminarServicio,
+    actualizarServicio,
+    actualizarProducto
 }

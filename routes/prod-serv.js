@@ -9,7 +9,12 @@ const {  crearProducto,
     crearServicio,
     getProductos,
     getServicios,
-    getProductoPorUsuario} = require('../controllers/Prod-Serv');
+    getProductoPorUsuario,
+    actualizarServicio,
+    actualizarProducto,
+    eliminarProducto,
+    eliminarServicio,
+    getServicioPorUsuario} = require('../controllers/Prod-Serv');
 const { validarJWT } = require('../middlewares');
 const { esRoleValido } = require('../helpers/db-validators');
 
@@ -34,5 +39,37 @@ router.get('/servicios',[
     validarJWT,
     validarCampos
 ],getServicios );
+
+router.put('/service-update', [
+    validarJWT,
+    validarCampos
+], actualizarServicio )
+
+router.put('/product-update', [
+    validarJWT,
+    validarCampos
+], actualizarProducto )
+
+router.delete('/delete-product', [
+    validarJWT,
+    validarCampos
+], eliminarProducto )
+
+
+router.delete('/delete-service', [
+    validarJWT,
+    validarCampos
+], eliminarServicio )
+
+router.get('/product-by-client',[
+    validarJWT,
+    validarCampos
+], getProductoPorUsuario);
+
+router.get('/service-by-client',[
+    validarJWT,
+    validarCampos
+], getServicioPorUsuario);
+
 
 module.exports = router;
