@@ -118,27 +118,7 @@ const AdminPost = async (req, res = response) => {
      
     });
 }
-const usuariosVendedorPost = async (req, res = response) => {
 
-    let {password, ...resto} = req.body;
-
-    const usuarioVendedor = new User_Vendedor({password, ...resto});
-    const usuarioComprador = new User_Comprador({password, ...resto});
-
-    // Encriptar la contraseña
-    const salt = bcryptjs.genSaltSync();
-    usuarioVendedor.password = bcryptjs.hashSync( password, salt );
-    usuarioComprador.password = bcryptjs.hashSync( password, salt );
-
-    await usuarioVendedor.save()
-    await usuarioComprador.save()
-
-    res.json({
-        msg: 'post API - usuariosPost',
-        usuario 
-        
-    });
-}
 
 const usuariosPut = async (req, res = response) => {
 
@@ -162,8 +142,6 @@ const usuariosPut = async (req, res = response) => {
         const salt = bcryptjs.genSaltSync();
         resto.password = bcryptjs.hashSync( password, salt );
     }
-
-    
         usuario = await User.findByIdAndUpdate( id, resto );
     
     res.json(usuario);

@@ -21,9 +21,18 @@ const crearProducto = async (req, res) =>{
         })
     }
 
+    
+
     if(usuario.rol != 'USER_SELLER'){
         return res.status(404).json({
             msg:'debe ser un usuario vendedor'
+        })
+    }
+
+    //validar que tiene configurado la cuenta bancaria antes de continuar
+    if(!usuario.alias || !usuario.cbu || !usuario.banco){
+        return res.status(404).json({
+            msg:'debe completar datos de cuenta bancaria antes de continuar'
         })
     }
 
@@ -59,6 +68,20 @@ const crearServicio = async (req, res) =>{
             msg:'debe ser un usuario servicio'
         })
     }
+
+    //validar que tiene configurado la cuenta bancaria antes de continuar
+    if(!usuario.alias || !usuario.cbu || !usuario.banco){
+        return res.status(404).json({
+               msg:'debe completar datos de cuenta bancaria antes de continuar'
+       })
+   }   
+
+    //validad que tenga los datos de usuario antes de crear servicio
+    if(!usuario.experiencia || !usuario.sobremi || !usuario.Provicia){
+        return res.status(404).json({
+               msg:'debe completar datos personales antes de continuar'
+       })
+   }
 
     const servicio = new Servicio({usuario:uid, ...resto});
     try {
@@ -329,6 +352,7 @@ eliminarProducto = async(req, res)=>{
                 msg:'debe estar logiado para ver las eliminar Producto'
             })
         }
+     
 
         const productoEliminado = await Producto.findByIdAndDelete({_id:id, usuario:uid})
 

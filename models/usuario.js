@@ -24,7 +24,34 @@ const UserSchema = Schema({
         type: Boolean,
         default: true,
       
+    },
+    Provicia:{
+        type: String,
+       
+    },
+    Ciudad:{
+        type: String,
+
+    },
+    Profesion:{
+        type: String, 
+    },
+    sobremi:{
+        type: String, 
+    },
+    experiencia:{
+        type: Number,
+    },
+    alias:{
+        type: String, 
+    },
+    cbu:{
+        type: Number, 
+    },
+    banco:{
+        type: String,  
     }
+
     
 })
 
