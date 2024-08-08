@@ -77,7 +77,7 @@ const crearServicio = async (req, res) =>{
    }   
 
     //validad que tenga los datos de usuario antes de crear servicio
-    if(!usuario.experiencia || !usuario.sobremi || !usuario.Provicia){
+    if(!usuario.experiencia && !usuario.sobremi && !usuario.Provicia){
         return res.status(404).json({
                msg:'debe completar datos personales antes de continuar'
        })
@@ -98,15 +98,7 @@ const crearServicio = async (req, res) =>{
 }
 
 const getProductos = async(req, res)=>{
-    const uid = req.uid
 
-    const usuario = await User.findById(uid);
- 
-    if(!usuario){
-        return res.status(404).json({
-            msg:'debe estar logiado para ver las productos'
-        })
-    }
     try {
         const productos = await Producto.find();
         res.json(productos);
@@ -118,16 +110,7 @@ const getProductos = async(req, res)=>{
 }
 
 const getServicios = async(req, res)=>{
-    const uid = req.uid
-    
 
-    const usuario = await User.findById(uid);
- 
-    if(!usuario){
-        return res.status(404).json({
-            msg:'debe estar logiado para ver las servicios'
-        })
-    }
     try {
         const servicios = await Servicio.find();
         res.json(servicios);

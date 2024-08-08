@@ -25,20 +25,14 @@ router.post('/new-product',[
     validarCampos
 ],crearProducto );
 
-router.get('/productos',[
-    validarJWT,
-    validarCampos
-],getProductos );
+router.get('/productos',getProductos );
 
 router.post('/new-service',[
     validarJWT,
     validarCampos
 ],crearServicio );
 
-router.get('/servicios',[
-    validarJWT,
-    validarCampos
-],getServicios );
+router.get('/servicios', getServicios );
 
 router.put('/service-update', [
     validarJWT,
