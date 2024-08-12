@@ -8,47 +8,45 @@ const Producto = require('../models/producto')
 const Servicio = require('../models/Servicio')
 
 
-const crearProducto = async (req, res) =>{
-    const {userId, ...resto} = req.body;
+const crearProducto = async (req, res) => {
+    const { userId, ...resto } = req.body;
 
-    const uid = req.uid
+    const uid = req.uid;
 
-    const usuario = await User.findById(uid);
-
-    if(!usuario){
+    const usuario = await User.findById(uid).lean();  // Usar .lean() para obtener un objeto JavaScript plano
+    if (!usuario) {
         return res.status(404).json({
-            msg:'debe estar logiado para crear producto'
-        })
+            msg: 'Debe estar logueado para crear un producto'
+        });
     }
 
-    
-
-    if(usuario.rol != 'USER_SELLER'){
+    if (usuario.rol !== 'USER_SELLER') {
         return res.status(404).json({
-            msg:'debe ser un usuario vendedor'
-        })
+            msg: 'Debe ser un usuario vendedor'
+        });
     }
 
-    //validar que tiene configurado la cuenta bancaria antes de continuar
-    if(!usuario.alias || !usuario.cbu || !usuario.banco){
+    // Validar que tiene configurada la cuenta bancaria antes de continuar
+    if (!usuario.alias || !usuario.cbu || !usuario.banco) {
         return res.status(404).json({
-            msg:'debe completar datos de cuenta bancaria antes de continuar'
-        })
+            msg: 'Debe completar los datos de la cuenta bancaria antes de continuar'
+        });
     }
 
-    const producto = new Producto({usuario:uid, ...resto})
+    const producto = new Producto({ usuarioId: uid, usuario, ...resto });
+
     try {
-        await producto.save()
+        await producto.save();
         res.status(200).json({
-            msg: 'producto creado',
+            msg: 'Producto creado',
             producto
-        })
-
+        });
     } catch (error) {
         console.error(error);
-        res.status(404).json({message: error.message});
+        res.status(404).json({ message: error.message });
     }
-}
+};
+
 
 const crearServicio = async (req, res) =>{
     const {userId, ...resto} = req.body;
