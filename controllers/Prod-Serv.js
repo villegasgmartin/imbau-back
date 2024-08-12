@@ -118,6 +118,31 @@ const getServicios = async(req, res)=>{
 
     }
 }
+const getProductoporId = async(req, res)=>{
+    const id = req.query.id
+    
+    try {
+        const producto = await Producto.findById(id);
+        res.json(producto);
+    } catch (error) {
+        console.error(error);
+        res.status(404).json({message: error.message});
+
+    }
+}
+
+const getServiceporId = async(req, res)=>{
+    const id = req.query.id
+    
+    try {
+        const servicio = await Servicio.findById(id);
+        res.json(servicio);
+    } catch (error) {
+        console.error(error);
+        res.status(404).json({message: error.message});
+
+    }
+}
 
 const getProductoPorUsuario = async(req, res = response) => {
     const { limite = 5, desde = 0 } = req.query;
@@ -368,5 +393,7 @@ module.exports ={
     eliminarProducto,
     eliminarServicio,
     actualizarServicio,
-    actualizarProducto
+    actualizarProducto,
+    getProductoporId,
+    getServiceporId
 }

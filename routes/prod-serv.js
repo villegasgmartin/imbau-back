@@ -14,7 +14,9 @@ const {  crearProducto,
     actualizarProducto,
     eliminarProducto,
     eliminarServicio,
-    getServicioPorUsuario} = require('../controllers/Prod-Serv');
+    getServicioPorUsuario,
+    getServiceporId,
+    getProductoporId} = require('../controllers/Prod-Serv');
 const { validarJWT } = require('../middlewares');
 const { esRoleValido } = require('../helpers/db-validators');
 
@@ -64,6 +66,10 @@ router.get('/service-by-client',[
     validarJWT,
     validarCampos
 ], getServicioPorUsuario);
+
+router.get('/servicio', getServiceporId);
+router.get('/producto', getProductoporId);
+
 
 
 module.exports = router;
