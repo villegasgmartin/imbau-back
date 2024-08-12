@@ -53,7 +53,7 @@ const crearServicio = async (req, res) =>{
 
     const uid = req.uid
 
-    const usuario = await User.findById(uid);
+    const usuario = await User.findById(uid).lean();
 
     if(!usuario){
         return res.status(404).json({
@@ -81,7 +81,7 @@ const crearServicio = async (req, res) =>{
        })
    }
 
-    const servicio = new Servicio({usuario:uid, ...resto});
+    const servicio = new Servicio({usuarioId:uid, usuario, ...resto});
     try {
         await servicio.save()
         res.status(200).json({

@@ -2,9 +2,13 @@
 const {Schema, model } = require('mongoose');
 
 const UserSchema = Schema({
-    usuario: [
+    usuarioId: [
         { type: Schema.Types.ObjectId, ref: 'User' }
     ],
+    usuario: {
+        type: Object,
+        required: true
+    },
     img:{
         type: String,
         
