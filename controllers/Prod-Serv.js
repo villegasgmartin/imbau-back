@@ -5,7 +5,8 @@ const { response, request } = require('express');
 const User = require('../models/usuario')
 const User_Admin = require('../models/usuarioAdmin')
 const Producto = require('../models/producto')
-const Servicio = require('../models/Servicio')
+const Servicio = require('../models/Servicio');
+const generarLinkDePago = require('../middlewares/mercado-pago');
 
 
 const crearProducto = async (req, res) => {
@@ -383,6 +384,62 @@ eliminarProducto = async(req, res)=>{
     
 }
 
+//compra producto
+
+const comprarProducto =async(req, res) => {
+    const { id } = req.query;
+    const cantidad = req.body.cantidad
+    const uid = req.uid;
+
+    try {
+        //validamos el usuario comprador 
+        const usuario = await User.findById(uid);
+
+        if (!usuario) {
+            return res.status(404).json({
+                msg: 'Debe poder comprar'
+            });
+        }
+
+        //obtenemos el producto que se quiere comprar
+
+        let producto = await Producto.findOne({ _id: id });
+        console.log(producto)
+
+        if (!producto) {
+            return res.status(404).json({
+                msg: 'producto no encontrado'
+            });
+        }
+
+        //actualizar el stock 
+        producto.stock = producto.stock - cantidad
+
+        
+
+        producto.save();
+
+        //obtener precio del total
+        total = producto.precio
+
+        // asignar la compra del producto al comprador 
+        usuario.productosComprados.push(id);
+
+        usuario.save();
+
+        //obtner el link de pago
+        const link = await generarLinkDePago(total, cantidad, producto.nombre);
+
+        res.status(200).json(link);
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        });
+    }
+}
+
 module.exports ={
     crearProducto,
     crearServicio,
@@ -395,5 +452,6 @@ module.exports ={
     actualizarServicio,
     actualizarProducto,
     getProductoporId,
-    getServiceporId
+    getServiceporId,
+    comprarProducto
 }

@@ -38,10 +38,6 @@ const UserSchema = Schema({
         type: String,
         required: [true, 'el rubro es requerida']
     },
-    servicio:{
-        type: String,
-        required: [true, 'el servicio es requerida']
-    },
     titulo:{
         type: String,
         required: true

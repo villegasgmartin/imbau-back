@@ -21,6 +21,11 @@ const ServicioSchema = Schema({
         type: String,
         required: true,
     },
+    descripcion: {
+        type: String,
+        required: false,
+    },
+
     marca: {
         type: String,
         required: true,
@@ -46,6 +51,9 @@ const ServicioSchema = Schema({
     cuota: {
         type: String,
     },
+    stock: {
+        type: Number,
+    },
     entrega: {
         type: String,
         required: true,
@@ -61,6 +69,9 @@ const ServicioSchema = Schema({
     precio: {
         type: Number,
         required: true
+    },
+    estrellas:{
+        type: Number
     }
 });
 
