@@ -3,8 +3,8 @@ const {MercadoPagoConfig, Preference} = require('mercadopago');
 // Configura las credenciales
 const client = new MercadoPagoConfig({ accessToken: process.env.TOKEN_MP });
 
-async function generarLinkDePago(precio, cantidad, producto) {
-  console.log('precio en mercado pago', precio, cantidad, producto);
+async function generarLinkDePago(precio) {
+
   const preference = new Preference(client);
 
   try {
@@ -12,8 +12,8 @@ async function generarLinkDePago(precio, cantidad, producto) {
       body: {
         items: [
           {
-            title: producto,
-            quantity: cantidad,
+            title: "Compra realizada en Imbau",
+            quantity: 1,
             unit_price: precio, // Precio dinámico
           },
         ],

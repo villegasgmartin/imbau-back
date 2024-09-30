@@ -387,9 +387,13 @@ eliminarProducto = async(req, res)=>{
 //compra producto
 
 const comprarProducto =async(req, res) => {
-    const { id } = req.query;
-    const cantidad = req.body.cantidad
+   
+    const {cantidad, ids} = req.body
     const uid = req.uid;
+    let total = 0
+
+    console.log(cantidad, ids)
+  
 
     try {
         //validamos el usuario comprador 
@@ -401,36 +405,51 @@ const comprarProducto =async(req, res) => {
             });
         }
 
-        //obtenemos el producto que se quiere comprar
+        // Verificar si id es un array
+        if (Array.isArray(ids) && Array.isArray(cantidad)) {
 
-        let producto = await Producto.findOne({ _id: id });
-        console.log(producto)
+            for (let i = 0; i < ids.length; i++) {
+                let producto = await Producto.findOne({ _id: ids[i] });
+                console.log(producto)
 
-        if (!producto) {
+                if (!producto) {
+                    return res.status(404).json({
+                        msg: 'producto no encontrado'
+                    });
+                }
+                 //actualizar el stock 
+                let cant = cantidad[i]
+                producto.stock = producto.stock - cant
+
+
+               
+
+                
+
+                console.log(producto.precio , cant)
+                //obtener precio del total
+                total += producto.precio * cant
+                // asignar la compra del producto al comprador 
+                usuario.productosComprados.push(ids[i]);
+                await usuario.save();
+               
+
+
+                
+            }
+
+            console.log(total);
+            //obtner el link de pago
+            const link = await generarLinkDePago(total);
+            res.status(200).json(link); 
+            
+        } else {
+            
             return res.status(404).json({
-                msg: 'producto no encontrado'
-            });
+                msg: 'producto no encontrado, debe mandarse como array'
+            })
+            
         }
-
-        //actualizar el stock 
-        producto.stock = producto.stock - cantidad
-
-        
-
-        producto.save();
-
-        //obtener precio del total
-        total = producto.precio
-
-        // asignar la compra del producto al comprador 
-        usuario.productosComprados.push(id);
-
-        usuario.save();
-
-        //obtner el link de pago
-        const link = await generarLinkDePago(total, cantidad, producto.nombre);
-
-        res.status(200).json(link);
         
     } catch (error) {
         console.log(error);
