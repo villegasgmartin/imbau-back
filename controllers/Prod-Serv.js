@@ -7,6 +7,7 @@ const User_Admin = require('../models/usuarioAdmin')
 const Producto = require('../models/producto')
 const Servicio = require('../models/Servicio');
 const generarLinkDePago = require('../middlewares/mercado-pago');
+const Compra = require('../models/compras');
 
 
 const crearProducto = async (req, res) => {
@@ -308,7 +309,7 @@ const actualizarServicio = async (req, res) => {
 };
 
 
-eliminarServicio = async(req, res)=>{
+const eliminarServicio = async(req, res)=>{
     const { id} = req.query;
 
     const uid = req.uid
@@ -421,11 +422,6 @@ const comprarProducto =async(req, res) => {
                 let cant = cantidad[i]
                 producto.stock = producto.stock - cant
 
-
-               
-
-                
-
                 console.log(producto.precio , cant)
                 //obtener precio del total
                 total += producto.precio * cant
@@ -433,14 +429,20 @@ const comprarProducto =async(req, res) => {
                 usuario.productosComprados.push(ids[i]);
                 await usuario.save();
                
+                    //guardar la compra en el modelo de compras
+                const compra = new Compra({
+                    usuarioId: uid, usuario, producto : producto,  estado:'En Preparacion'
+                })
 
-
+                await compra.save();
                 
             }
 
             console.log(total);
             //obtner el link de pago
             const link = await generarLinkDePago(total);
+
+            
             res.status(200).json(link); 
             
         } else {

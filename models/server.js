@@ -11,6 +11,7 @@ class Server {
         this.buscar =     '/api/buscar',
         this.authPath     = '/api/auth';
         this.productPath     = '/api/products';
+        this.adminPath = '/api/admin'
 
         //conectar BD
         this.conectarDB();
@@ -43,6 +44,7 @@ class Server {
         this.app.use( this.usuariosPath, require('../routes/usuarios'));
         this.app.use( this.productPath, require('../routes/prod-serv'));
         this.app.use( this.buscar, require('../routes/buscar'));
+        this.app.use( this.adminPath, require('../routes/admin'));
     }
 
     listen() {

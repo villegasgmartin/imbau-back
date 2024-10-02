@@ -6,59 +6,6 @@ const bcryptjs = require('bcryptjs');
 const User = require('../models/usuario')
 const User_Admin = require('../models/usuarioAdmin')
 
-const usuariosGetTotal = async(req = request, res = response) => {
-    const { limite = 5, desde = 0 } = req.query;
-    const query = { estado: true };
-
-    try {
-        // Obtener el conteo total de documentos en las tres colecciones
-        const totalUsuarios = await Promise.all([
-            User.countDocuments(query),
-        ]);
-
-        const total = totalUsuarios;
-
-        let usuarios = [];
-        let skip = Number(desde);
-        let limit = Number(limite);
-
-        // Obtener los usuarios de User_Servicio
-        if (skip < totalUsuarios) {
-            const totalUsuarios = await User.find(query).skip(skip).limit(limit).exec();
-            usuarios = totalUsuarios;
-            limit -= totalUsuarios.length;
-            skip = 0;
-        } else {
-            skip -= totalUsuarios;
-        }
-
-        // // Obtener los usuarios de User_Comprador si aún queda límite
-        // if (limit > 0 && skip < totalComprador) {
-        //     const usuariosComprador = await User_Comprador.find(query).skip(skip).limit(limit).exec();
-        //     usuarios = usuarios.concat(usuariosComprador);
-        //     limit -= usuariosComprador.length;
-        //     skip = 0;
-        // } else {
-        //     skip -= totalComprador;
-        // }
-
-        // // Obtener los usuarios de User_Vendedor si aún queda límite
-        // if (limit > 0) {
-        //     const usuariosVendedor = await User_Vendedor.find(query).skip(skip).limit(limit).exec();
-        //     usuarios = usuarios.concat(usuariosVendedor);
-        // }
-
-        res.json({
-            total,
-            usuarios
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            msg: 'Error en el servidor'
-        });
-    }
-};
 
 const getUsuario = async (req, res) => {
     const {id} = req.query;
@@ -149,33 +96,13 @@ const usuariosPut = async (req, res = response) => {
 
 
 
-const usuariosDelete = async(req, res = response) => {
-    const { id } = req.query;
 
-
-    // Buscar el usuario en las tres colecciones
-    let user = await User.findById(id)
-
-    if (!user) {
-        return res.status(404).json({
-            msg: 'Usuario no encontrado'
-        });
-    }
-
-    // Actualizar el estado del usuario encontrado
-    user.estado = false;
-    await user.save();
-    
-    res.json(user);
-}
 
 
 
 
 module.exports = {
-    usuariosGetTotal,
     usuariosPost,
-    usuariosDelete,
     usuariosPut,
     AdminPost,
     getUsuario

@@ -25,8 +25,6 @@ const {  usuariosGetTotal,
 const router = Router();
 
 
-router.get('/usuarios', usuariosGetTotal );
-
 
 
 
@@ -73,15 +71,7 @@ router.put('/',[
 ],usuariosPut ); 
 
 
-//**borrar usuario cambiando estado */
-router.delete('/',[
-    validarJWT,
-    // esAdminRole,
-    tieneRole('USER_ADMIN'),
-    check('id', 'No es un ID válido').isMongoId(),
-    check('id').custom( existeUsuarioPorId ),
-    validarCampos
-],usuariosDelete );
+
 
 
 //**obtener un usuario */
