@@ -148,7 +148,7 @@ const getProductosComprados = async(req, res)=>{
 const deleteProductosComprados = async(req, res)=>{
     const {id}= req.query
     try {
-        const comprasProductos = await Compra.delete({_id: id});
+        const comprasProductos = await Compra.findByIdAndDelete(id);
         res.json({
             msg: 'producto eliminado de la lista de comprados'
         });
@@ -162,7 +162,9 @@ const deleteProductosComprados = async(req, res)=>{
 
 //agregar banner
 const postBanner = async(req, res)=>{
-    const {ubicacion, posicion, img, inicio, fin} = req.body;
+    let {ubicacion, posicion, img, inicio, fin} = req.body;
+    console.log(req.body);
+
 
     try {
         
@@ -180,6 +182,7 @@ const postBanner = async(req, res)=>{
         }
         
         const banner = new Banner({ubicacion, posicion, img, inicio, fin});
+        
 
         banner.save();
 
@@ -200,6 +203,38 @@ const postBanner = async(req, res)=>{
 //get banner
 
 const getBanner = async (req, res) =>{
+    const {ubicacion, posicion}= req.body; 
+    const query = {ubicacion, posicion}
+   
+    //validar si la fecha actual es mayor que la fecha actual es mas grande que la fecha de inicio paro mas chica que la fecha de fin
+
+    const fechaActual = new Date();
+    const imgDefault = 'https://res.cloudinary.com/dj3akdhb9/image/upload/e_improve,w_300,h_600,c_thumb,g_auto/v1727921766/imbau-default_xbkzhj.jpg'
+
+    try {
+        
+        const banner = await Banner.find(query);
+        console.log(banner[0]);
+        //verificar fechas
+        if(!banner[0] || fechaActual < banner[0].inicio || fechaActual > banner[0].fin ){
+           return res.status(200).json({
+                img: imgDefault
+            })
+        }
+        
+        // en caso de que haya foto y este dentro de la fecha
+
+        res.status(200).json({
+            img: banner[0].img
+        })
+
+
+
+    } catch (error) {
+        console.error(error);
+        res.status(404).json({message: error.message});
+    }
+
 
 }
 
@@ -211,5 +246,7 @@ module.exports = {
     usuariosActivar,
     usuariosPorTipo,
     getProductosComprados,
-    deleteProductosComprados
+    deleteProductosComprados,
+    getBanner,
+    postBanner
 }

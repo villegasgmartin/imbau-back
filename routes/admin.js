@@ -19,7 +19,9 @@ const {  usuariosGetTotal,
         usuariosActivar,
         usuariosPorTipo,
         getProductosComprados,
-        deleteProductosComprados
+        deleteProductosComprados,
+        postBanner,
+        getBanner
         } = require('../controllers/admin');
 
 
@@ -31,13 +33,11 @@ router.get('/usuarios',[
     validarJWT,
     // esAdminRole,
     tieneRole('USER_ADMIN'),
-    check('id', 'No es un ID válido').isMongoId(),
-    check('id').custom( existeUsuarioPorId ),
     validarCampos
 ], usuariosGetTotal );
 
 //**borrar usuario cambiando estado */
-router.put('/',[
+router.put('/delete',[
     validarJWT,
     // esAdminRole,
     tieneRole('USER_ADMIN'),
@@ -47,7 +47,7 @@ router.put('/',[
 ],usuariosDelete );
 
 //**activar usuario cambiando estado */
-router.put('/',[
+router.put('/activar',[
     validarJWT,
     // esAdminRole,
     tieneRole('USER_ADMIN'),
@@ -63,8 +63,6 @@ router.get('/usuarios-tipo',[
     validarJWT,
     // esAdminRole,
     tieneRole('USER_ADMIN'),
-    check('id', 'No es un ID válido').isMongoId(),
-    check('id').custom( existeUsuarioPorId ),
     validarCampos
 ], usuariosPorTipo );
 
@@ -74,17 +72,34 @@ router.get('/productos-comprados',[
     validarJWT,
     // esAdminRole,
     tieneRole('USER_ADMIN'),
-    check('id', 'No es un ID válido').isMongoId(),
-    check('id').custom( existeUsuarioPorId ),
     validarCampos
 ], getProductosComprados );
 
 //borrar producto comprado
-router.delete('/productos-comprados',[
+router.delete('/borrar-productos-comprado',[
     validarJWT,
     // esAdminRole,
     tieneRole('USER_ADMIN'),
-    check('id', 'No es un ID válido').isMongoId(),
-    check('id').custom( existeUsuarioPorId ),
     validarCampos
 ], deleteProductosComprados );
+
+//crear un banner
+
+router.post('/new-banner',[
+    validarJWT,
+    // esAdminRole,
+    tieneRole('USER_ADMIN'),
+    validarCampos
+],postBanner )
+
+//obtener banner
+
+router.get('/banner',[
+    validarJWT,
+    // esAdminRole,
+    tieneRole('USER_ADMIN'),
+    validarCampos
+],getBanner )
+
+
+module.exports = router;
