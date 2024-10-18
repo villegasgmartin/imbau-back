@@ -2,6 +2,7 @@ const { response, request } = require('express');
 const bcryptjs = require('bcryptjs');
 
 
+
 //modelos de usuario
 const User = require('../models/usuario')
 const User_Admin = require('../models/usuarioAdmin');
@@ -14,7 +15,7 @@ cloudinary.config(process.env.CLOUDINARY_URL);
 
 const usuariosGetTotal = async(req = request, res = response) => {
     const { limite = 99, desde = 0 } = req.query;
-    const query = { estado: true };
+    
 
     try {
         // Obtener el conteo total de documentos en las tres colecciones
@@ -30,7 +31,7 @@ const usuariosGetTotal = async(req = request, res = response) => {
 
         // Obtener los usuarios de User_Servicio
         if (skip < totalUsuarios) {
-            const totalUsuarios = await User.find(query).skip(skip).limit(limit).exec();
+            const totalUsuarios = await User.find().skip(skip).limit(limit).exec();
             usuarios = totalUsuarios;
             limit -= totalUsuarios.length;
             skip = 0;
@@ -144,6 +145,8 @@ const getProductosComprados = async(req, res)=>{
     }
 }
 
+
+
 //borrar compra de producto
 const deleteProductosComprados = async(req, res)=>{
     const {id}= req.query
@@ -162,7 +165,7 @@ const deleteProductosComprados = async(req, res)=>{
 
 //agregar banner
 const postBanner = async(req, res)=>{
-    let {ubicacion, posicion, img, inicio, fin} = req.body;
+    let {ubicacion, posicion, img, inicio, fin, nombre} = req.body;
     console.log(req.body);
 
 
@@ -181,7 +184,7 @@ const postBanner = async(req, res)=>{
                 'https://res.cloudinary.com/dj3akdhb9/image/upload/v1724899221/samples/caravatar_rsuxln.png';
         }
         
-        const banner = new Banner({ubicacion, posicion, img, inicio, fin});
+        const banner = new Banner({ubicacion, posicion, img, inicio, fin, nombre});
         
 
         banner.save();
@@ -238,6 +241,38 @@ const getBanner = async (req, res) =>{
 
 }
 
+const getTodosBaners = async (req, res) =>{
+
+    //validar si la fecha actual es mayor que la fecha actual es mas grande que la fecha de inicio paro mas chica que la fecha de fin
+
+    const imgDefault = 'https://res.cloudinary.com/dj3akdhb9/image/upload/e_improve,w_300,h_600,c_thumb,g_auto/v1727921766/imbau-default_xbkzhj.jpg'
+
+    try {
+        
+        const banner = await Banner.find(query);
+        console.log(banner[0]);
+        //verificar fechas
+        if(!banner[0] || fechaActual < banner[0].inicio || fechaActual > banner[0].fin ){
+           return res.status(200).json({
+                img: imgDefault
+            })
+        }
+        
+        // en caso de que haya foto y este dentro de la fecha
+
+        res.status(200).json({
+            img: banner[0].img
+        })
+
+
+
+    } catch (error) {
+        console.error(error);
+        res.status(404).json({message: error.message});
+    }
+
+
+}
 
 
 module.exports = {

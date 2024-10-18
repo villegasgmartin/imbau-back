@@ -1,4 +1,5 @@
 const { response, request } = require('express');
+const { customAlphabet } = require('nanoid');
 
 
 //modelos de usuario
@@ -347,7 +348,7 @@ const eliminarServicio = async(req, res)=>{
 }
 
 
-eliminarProducto = async(req, res)=>{
+const eliminarProducto = async(req, res)=>{
     const { id} = req.query;
 
     const uid = req.uid
@@ -430,8 +431,14 @@ const comprarProducto =async(req, res) => {
                 await usuario.save();
                
                     //guardar la compra en el modelo de compras
+
+                // Crea un generador con 4-5 caracteres de longitud, combinando letras y números
+                const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 5);
+
+                // Generar un ID único
+                const idCorto = nanoid();
                 const compra = new Compra({
-                    usuarioId: uid, usuario, producto : producto,  estado:'En Preparacion'
+                    usuarioId: uid, usuario, producto : producto,  estado:'En Preparacion', idcorto:idCorto, tipo:'Producto'
                 })
 
                 await compra.save();

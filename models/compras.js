@@ -5,6 +5,9 @@ const ComprasSchema = Schema({
     usuarioId: [
         { type: Schema.Types.ObjectId, ref: 'User' }
     ],
+    idcorto:{
+        type: String
+    },
     usuario: {
         type: Object,
         required: true
@@ -18,6 +21,9 @@ const ComprasSchema = Schema({
     estado:{
         type: String,
         required: true
+    },
+    tipo:{
+        type: String
     }
    
 })
