@@ -15,6 +15,7 @@ cloudinary.config(process.env.CLOUDINARY_URL);
 
 const usuariosGetTotal = async(req = request, res = response) => {
     const { limite = 99, desde = 0 } = req.query;
+    const query = { estado: true };
     
 
     try {
