@@ -9,6 +9,7 @@ const Producto = require('../models/producto')
 const Servicio = require('../models/Servicio');
 const generarLinkDePago = require('../middlewares/mercado-pago');
 const Compra = require('../models/compras');
+const Categoria = require('../models/categoria');
 
 
 const crearProducto = async (req, res) => {
@@ -98,17 +99,45 @@ const crearServicio = async (req, res) =>{
     }
 }
 
-const getProductos = async(req, res)=>{
-
+const getProductosAleatorio = async (req, res) => {
     try {
-        const productos = await Producto.find();
+        const productos = await Producto.aggregate([
+            { $sample: { size: await Producto.countDocuments() } }
+        ]);
         res.json(productos);
     } catch (error) {
         console.error(error);
-        res.status(404).json({message: error.message});
-
+        res.status(500).json({ message: error.message });
     }
-}
+};
+
+const getProductosAleatorio1 = async (req, res) => {
+    try {
+        const totalProductos = await Producto.countDocuments();
+        const productos = await Producto.aggregate([{ $sample: { size: Math.ceil(totalProductos / 2) } }]);
+        res.json(productos);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const getProductosAleatorio2 = async (req, res) => {
+    try {
+        const productos = await Producto.find();
+        
+        // Mezclar manualmente los productos
+        for (let i = productos.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [productos[i], productos[j]] = [productos[j], productos[i]];
+        }
+
+        res.json(productos);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
 
 const getServicios = async(req, res)=>{
 
@@ -412,6 +441,7 @@ const comprarProducto =async(req, res) => {
 
             for (let i = 0; i < ids.length; i++) {
                 let producto = await Producto.findOne({ _id: ids[i] });
+                const usuariovendedor = producto.usuarioId
                 console.log(producto)
 
                 if (!producto) {
@@ -427,8 +457,8 @@ const comprarProducto =async(req, res) => {
                 //obtener precio del total
                 total += producto.precio * cant
                 // asignar la compra del producto al comprador 
-                usuario.productosComprados.push(ids[i]);
-                await usuario.save();
+                // usuario.productosComprados.push(ids[i]);
+                // await usuario.save();
                
                     //guardar la compra en el modelo de compras
 
@@ -438,7 +468,7 @@ const comprarProducto =async(req, res) => {
                 // Generar un ID único
                 const idCorto = nanoid();
                 const compra = new Compra({
-                    usuarioId: uid, usuario, producto : producto,  estado:'En Preparacion', idcorto:idCorto, tipo:'Producto'
+                    usuarioId: uid, usuario, producto : producto,  estado:'En Preparacion', idcorto:idCorto, tipo:'Producto', usuariovendedor:usuariovendedor
                 })
 
                 await compra.save();
@@ -468,10 +498,142 @@ const comprarProducto =async(req, res) => {
     }
 }
 
+//crud categorias y subcategorias
+
+
+// Crear una nueva categoría
+const crearCategoria = async (req, res) => {
+    const { categoria, subcategoria } = req.body;
+
+    try {
+        //verificar que no exista una categoria con el mismo nombre
+        const mismaCategoria = await Categoria.find({categoria})
+        console.log(mismaCategoria)
+        if(mismaCategoria.length > 0){
+            return res.json({
+                msg: "Ya existe categoria con ese nombre"
+            })
+        }
+        const nuevaCategoria = new Categoria({ categoria, subcategoria });
+        await nuevaCategoria.save();
+
+        res.status(201).json({
+            msg: 'Categoría creada exitosamente',
+            categoria: nuevaCategoria
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error al crear la categoría', error });
+    }
+};
+
+// Crear una subcategoría asociada a una categoría
+const agregarSubcategoria = async (req, res) => {
+    const categoriaId = req.query.categoria
+    const {subcategoria } = req.body;
+
+    try {
+        const categoria = await Categoria.findById(categoriaId);
+
+        if (!categoria) {
+            return res.status(404).json({ msg: 'Categoría no encontrada' });
+        }
+
+        categoria.subcategoria.push(subcategoria);
+        await categoria.save();
+
+        res.status(200).json({
+            msg: 'Subcategoría agregada exitosamente',
+            categoria
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error al agregar la subcategoría', error });
+    }
+};
+
+// Editar una categoría o su visibilidad
+const editarCategoria = async (req, res) => {
+    const  id  = req.query.categoria;
+    const { categoria, visibilidad } = req.body;
+
+    try {
+        const categoriaEditada = await Categoria.findByIdAndUpdate(
+            id,
+            { categoria, visibilidad },
+            { new: true }
+        );
+
+        if (!categoriaEditada) {
+            return res.status(404).json({ msg: 'Categoría no encontrada' });
+        }
+
+        res.status(200).json({
+            msg: 'Categoría editada exitosamente',
+            categoria: categoriaEditada
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error al editar la categoría', error });
+    }
+};
+
+// Eliminar una categoría y sus subcategorías
+const eliminarCategoria = async (req, res) => {
+    const  id  = req.query.categoria;
+
+    try {
+        const categoriaEliminada = await Categoria.findByIdAndDelete(id);
+
+        if (!categoriaEliminada) {
+            return res.status(404).json({ msg: 'Categoría no encontrada' });
+        }
+
+        res.status(200).json({
+            msg: 'Categoría y subcategorías eliminadas exitosamente',
+            categoria: categoriaEliminada
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error al eliminar la categoría', error });
+    }
+};
+
+// Obtener categorías y subcategorías visibles
+const obtenerCategoriasVisibles = async (req, res) => {
+    try {
+        const categorias = await Categoria.find({ visibilidad: true });
+
+        res.status(200).json({
+            msg: 'Categorías obtenidas exitosamente',
+            categorias
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error al obtener las categorías', error });
+    }
+};
+// Obtener categorías y subcategorías visibles
+const obtenerSubCategoriasVisibles = async (req, res) => {
+    const categoria = req.query.categoria
+    try {
+        const categorias = await Categoria.find({ visibilidad: true, categoria });
+        console.log(categorias)
+        const subcategorias = categorias[0].subcategoria
+
+        res.status(200).json({
+            subcategorias
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ msg: 'Error al obtener las categorías', error });
+    }
+};
+
+
 module.exports ={
     crearProducto,
     crearServicio,
-    getProductos,
     getServicios,
     getProductoPorUsuario,
     getServicioPorUsuario,
@@ -481,5 +643,14 @@ module.exports ={
     actualizarProducto,
     getProductoporId,
     getServiceporId,
-    comprarProducto
+    comprarProducto,
+    crearCategoria,
+    agregarSubcategoria,
+    editarCategoria,
+    eliminarCategoria,
+    obtenerCategoriasVisibles,
+    obtenerSubCategoriasVisibles,
+    getProductosAleatorio,
+    getProductosAleatorio1,
+    getProductosAleatorio2
 }

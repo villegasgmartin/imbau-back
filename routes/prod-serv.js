@@ -17,7 +17,10 @@ const {  crearProducto,
     getServicioPorUsuario,
     getServiceporId,
     getProductoporId,
-    comprarProducto} = require('../controllers/Prod-Serv');
+    comprarProducto,
+    getProductosAleatorio1,
+    getProductosAleatorio2,
+    getProductosAleatorio} = require('../controllers/Prod-Serv');
 const { validarJWT } = require('../middlewares');
 const { esRoleValido } = require('../helpers/db-validators');
 
@@ -28,7 +31,9 @@ router.post('/new-product',[
     validarCampos
 ],crearProducto );
 
-router.get('/productos',getProductos );
+router.get('/productos', getProductosAleatorio);
+router.get('/productos1', getProductosAleatorio1);
+router.get('/productos2', getProductosAleatorio2);
 
 router.post('/new-service',[
     validarJWT,
@@ -75,6 +80,8 @@ router.post('/comprar-producto',[
     validarJWT,
     validarCampos
 ], comprarProducto);
+
+
 
 
 

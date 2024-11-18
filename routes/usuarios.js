@@ -20,9 +20,13 @@ const {  usuariosGetTotal,
         usuariosDelete,
         usuariosPut,
         AdminPost,
-        getUsuario} = require('../controllers/usuarios');
+        getUsuario,
+        productosCompradosporUsuario,
+        productosvendidosporUsuario} = require('../controllers/usuarios');
 
 const router = Router();
+
+
 
 
 
@@ -83,7 +87,14 @@ router.get('/perfil',[
 ],getUsuario );
 
 
+//productos comprados por usuario
+router.get('/compras-por-usuario',[
+    validarJWT,
+],productosCompradosporUsuario );
 
+router.get('/ventas-por-usuario',[
+    validarJWT,
+],productosvendidosporUsuario);
 
 
 

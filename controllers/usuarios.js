@@ -4,13 +4,14 @@ const bcryptjs = require('bcryptjs');
 
 //modelos de usuario
 const User = require('../models/usuario')
-const User_Admin = require('../models/usuarioAdmin')
+const User_Admin = require('../models/usuarioAdmin');
+const usuario = require('../models/usuario');
+
+const Compra = require('../models/compras');
 
 
 const getUsuario = async (req, res) => {
     const {id} = req.query;
-
-
     try {
         const usuario =  await User.findById( id ) || await User_Admin.findById(id) ;
 
@@ -20,9 +21,6 @@ const getUsuario = async (req, res) => {
             msg: error
         })
     }
-   
-
-
 
 }
 
@@ -95,7 +93,63 @@ const usuariosPut = async (req, res = response) => {
 }
 
 
+const productosCompradosporUsuario = async (req, res) => {
+    const uid = req.uid;
 
+    try {
+        // Selecciona solo el campo 'producto' de las compras del usuario
+        const items = await Compra.find({ usuarioId: uid }).select('producto');
+
+        if (!items || items.length === 0) {
+            return res.status(200).json({
+                msg: 'No hay productos comprados para este usuario.',
+                productos: []
+            });
+        }
+
+        // Extrae solo los productos
+        const productos = items.map(item => item.producto);
+
+        res.status(200).json({
+            productos
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            msg: 'Error al obtener los productos.',
+            error
+        });
+    }
+};
+
+const productosvendidosporUsuario = async (req, res) => {
+    const uid = req.uid;
+    console.log(uid)
+    try {
+        // Selecciona solo el campo 'producto' de las ventas del usuario
+        const items = await Compra.find({ usuariovendedor: uid }).select('producto');
+        console.log(items)
+        if (!items || items.length === 0) {
+            return res.status(200).json({
+                msg: 'No hay productos comprados para este usuario.',
+                productos: []
+            });
+        }
+
+        // Extrae solo los productos
+        const productos = items.map(item => item.producto);
+
+        res.status(200).json({
+            productos
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            msg: 'Error al obtener los productos.',
+            error
+        });
+    }
+};
 
 
 
@@ -105,5 +159,7 @@ module.exports = {
     usuariosPost,
     usuariosPut,
     AdminPost,
-    getUsuario
+    getUsuario,
+    productosCompradosporUsuario,
+    productosvendidosporUsuario
 }

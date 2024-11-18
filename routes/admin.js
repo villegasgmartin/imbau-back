@@ -23,6 +23,7 @@ const {  usuariosGetTotal,
         postBanner,
         getBanner
         } = require('../controllers/admin');
+const { crearCategoria, agregarSubcategoria, editarCategoria, eliminarCategoria, obtenerCategoriasVisibles, obtenerSubCategoriasVisibles } = require('../controllers/Prod-Serv');
 
 
 const router = Router();
@@ -100,6 +101,56 @@ router.get('/banner',[
     tieneRole('USER_ADMIN'),
     validarCampos
 ],getBanner )
+
+
+// Crear una nueva categoría
+router.post('/crear-categoria',[
+    validarJWT,
+    // esAdminRole,
+    tieneRole('USER_ADMIN'),
+    validarCampos
+], crearCategoria);
+
+// Agregar una subcategoría a una categoría
+router.post('/agregar-subcategoria',[
+    validarJWT,
+    // esAdminRole,
+    tieneRole('USER_ADMIN'),
+    validarCampos
+], agregarSubcategoria);
+
+// Editar una categoría (incluye visibilidad)
+router.put('/editar-categoria',[
+    validarJWT,
+    // esAdminRole,
+    tieneRole('USER_ADMIN'),
+    validarCampos
+], editarCategoria);
+
+// Eliminar una categoría y sus subcategorías
+router.delete('/eliminar-categoria',[
+    validarJWT,
+    // esAdminRole,
+    tieneRole('USER_ADMIN'),
+    validarCampos
+], eliminarCategoria);
+
+// Obtener categorías y subcategorías visibles
+router.get('/categorias',[
+    validarJWT,
+    // esAdminRole,
+    tieneRole('USER_ADMIN'),
+    validarCampos
+], obtenerCategoriasVisibles);
+
+router.get('/subcategorias',[
+    validarJWT,
+    // esAdminRole,
+    tieneRole('USER_ADMIN'),
+    validarCampos
+], obtenerSubCategoriasVisibles);
+
+
 
 
 module.exports = router;

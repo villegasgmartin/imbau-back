@@ -5,6 +5,9 @@ const ComprasSchema = Schema({
     usuarioId: [
         { type: Schema.Types.ObjectId, ref: 'User' }
     ],
+    usuariovendedor:[
+        { type: Schema.Types.ObjectId, ref: 'User' }
+    ],
     idcorto:{
         type: String
     },

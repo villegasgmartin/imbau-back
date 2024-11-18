@@ -50,15 +50,15 @@ const UserSchema = Schema({
     },
     banco:{
         type: String,  
-    },
-    productosComprados: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Product'  
-    }],
-    serviciosComprados: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Servicio' 
-    }]
+    }
+    // productosComprados: [{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Product'  
+    // }],
+    // serviciosComprados: [{
+    //     type: Schema.Types.ObjectId,
+    //     ref: 'Servicio' 
+    // }]
 
     
 })

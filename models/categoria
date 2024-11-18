@@ -1,0 +1,18 @@
+
+const {Schema, model } = require('mongoose');
+
+const CategoriaSchema = Schema({
+    categoria: {
+        type: String
+    },
+    subcategoria: [{
+        type: String
+    }],
+    visibilidad:{
+        type:Boolean,
+        default: true
+    }
+   
+})
+
+module.exports= model('Categorias', CategoriaSchema)
