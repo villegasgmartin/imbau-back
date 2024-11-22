@@ -136,19 +136,9 @@ router.delete('/eliminar-categoria',[
 ], eliminarCategoria);
 
 // Obtener categorías y subcategorías visibles
-router.get('/categorias',[
-    validarJWT,
-    // esAdminRole,
-    tieneRole('USER_ADMIN'),
-    validarCampos
-], obtenerCategoriasVisibles);
+router.get('/categorias', obtenerCategoriasVisibles);
 
-router.get('/subcategorias',[
-    validarJWT,
-    // esAdminRole,
-    tieneRole('USER_ADMIN'),
-    validarCampos
-], obtenerSubCategoriasVisibles);
+router.get('/subcategorias', obtenerSubCategoriasVisibles);
 
 
 

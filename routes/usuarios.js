@@ -22,7 +22,9 @@ const {  usuariosGetTotal,
         AdminPost,
         getUsuario,
         productosCompradosporUsuario,
-        productosvendidosporUsuario} = require('../controllers/usuarios');
+        productosvendidosporUsuario,
+        actualizarEstadoCompraComprador,
+        actualizarEstadoCompraVendedor} = require('../controllers/usuarios');
 
 const router = Router();
 
@@ -95,6 +97,18 @@ router.get('/compras-por-usuario',[
 router.get('/ventas-por-usuario',[
     validarJWT,
 ],productosvendidosporUsuario);
+
+router.put('/estado-vendedor',[
+    validarJWT,
+],actualizarEstadoCompraVendedor);
+
+
+router.put('/estado-comprador',[
+    validarJWT,
+],actualizarEstadoCompraComprador);
+
+
+
 
 
 
