@@ -36,6 +36,13 @@ class Server {
         // Lectura y parseo del body
         this.app.use( express.json() );
 
+        //ip
+        this.app.use((req, res, next) => {
+            const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+            console.log('IP del cliente:', clientIp);
+            next();
+        });
+
         // Directorio Público
         this.app.use( express.static('public') );
 
