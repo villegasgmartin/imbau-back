@@ -2,9 +2,9 @@ const { response } = require('express');
 const bcryptjs = require('bcryptjs')
 
 //modelos de usuario
-const User_Servicio = require('../models/usuarioServicio')
-const User_Comprador = require('../models/usuarioComprador')
-const User_Vendedor = require('../models/usuarioVendedor')
+const User = require('../models/usuario')
+const User_Admin = require('../models/usuarioAdmin')
+
 
 const { generarJWT } = require('../helpers/generar-jwt');
 
@@ -16,7 +16,7 @@ const login = async(req, res = response) => {
     try {
       
         // Verificar si el email existe
-        const usuario = await User_Servicio.findOne({ correo }) || await User_Comprador.findOne({ correo }) || await User_Vendedor.findOne({ correo }) ;
+        const usuario = await User.findOne({ correo }) || await User_Admin.findOne({correo}) ;
         if ( !usuario ) {
             return res.status(400).json({
                 msg: 'Usuario / Password no son correctos - correo'

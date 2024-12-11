@@ -1,8 +1,7 @@
 const Role = require('../models/role');
 //modelos de usuario
-const User_Servicio = require('../models/usuarioServicio')
-const User_Comprador = require('../models/usuarioComprador')
-const User_Vendedor = require('../models/usuarioVendedor')
+const User = require('../models/usuario')
+
 
 const esRoleValido = async(rol = '') => {
 
@@ -15,11 +14,10 @@ const esRoleValido = async(rol = '') => {
 const emailExiste = async( correo = '' ) => {
 
     // Verificar si el correo existe
-    const existeEmailServicio = await User_Servicio.findOne({ correo });
-    const existeEmailComprador = await User_Comprador.findOne({ correo });
-    const existeEmailVendedor = await User_Vendedor.findOne({ correo });
+    const existeEmail = await User.findOne({ correo });
+   
 
-    if ( existeEmailServicio || existeEmailVendedor || existeEmailComprador) {
+    if ( existeEmail) {
         throw new Error(`El correo: ${ correo }, ya está registrado`);
     }
 }
@@ -27,13 +25,12 @@ const emailExiste = async( correo = '' ) => {
 const existeUsuarioPorId = async( id ) => {
     
     // Verificar si el correo existe
-    const existeUsuarioConprador = await User_Comprador.findById(id);
-    const existeUsuarioServicios = await User_Servicio.findById(id);
-    const existeUsuarioVendedor = await User_Vendedor.findById(id);
+    const existeUsuario = await User.findById(id);
+    
 
 
 
-    if ( !existeUsuarioConprador && !existeUsuarioServicios && !existeUsuarioVendedor ) {
+    if ( !existeUsuario ) {
         throw new Error(`El id no existe ${ id }`);
     }
 }

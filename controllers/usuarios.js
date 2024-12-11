@@ -3,96 +3,35 @@ const bcryptjs = require('bcryptjs');
 
 
 //modelos de usuario
-const User_Servicio = require('../models/usuarioServicio')
-const User_Comprador = require('../models/usuarioComprador')
-const User_Vendedor = require('../models/usuarioVendedor')
+const User = require('../models/usuario')
+const User_Admin = require('../models/usuarioAdmin');
+const usuario = require('../models/usuario');
 
-const usuariosGetTotal = async(req = request, res = response) => {
-    const { limite = 5, desde = 0 } = req.query;
-    const query = { estado: true };
+const Compra = require('../models/compras');
 
+
+const getUsuario = async (req, res) => {
+    const {id} = req.query;
     try {
-        // Obtener el conteo total de documentos en las tres colecciones
-        const [ totalServicio, totalComprador, totalVendedor ] = await Promise.all([
-            User_Servicio.countDocuments(query),
-            User_Comprador.countDocuments(query),
-            User_Vendedor.countDocuments(query),
-        ]);
+        const usuario =  await User.findById( id ) || await User_Admin.findById(id) ;
 
-        const total = totalServicio + totalComprador + totalVendedor;
-
-        let usuarios = [];
-        let skip = Number(desde);
-        let limit = Number(limite);
-
-        // Obtener los usuarios de User_Servicio
-        if (skip < totalServicio) {
-            const usuariosServicio = await User_Servicio.find(query).skip(skip).limit(limit).exec();
-            usuarios = usuariosServicio;
-            limit -= usuariosServicio.length;
-            skip = 0;
-        } else {
-            skip -= totalServicio;
-        }
-
-        // Obtener los usuarios de User_Comprador si aún queda límite
-        if (limit > 0 && skip < totalComprador) {
-            const usuariosComprador = await User_Comprador.find(query).skip(skip).limit(limit).exec();
-            usuarios = usuarios.concat(usuariosComprador);
-            limit -= usuariosComprador.length;
-            skip = 0;
-        } else {
-            skip -= totalComprador;
-        }
-
-        // Obtener los usuarios de User_Vendedor si aún queda límite
-        if (limit > 0) {
-            const usuariosVendedor = await User_Vendedor.find(query).skip(skip).limit(limit).exec();
-            usuarios = usuarios.concat(usuariosVendedor);
-        }
-
-        res.json({
-            total,
-            usuarios
-        });
+        res.status(200).json(usuario)
     } catch (error) {
-        console.error(error);
         res.status(500).json({
-            msg: 'Error en el servidor'
-        });
+            msg: error
+        })
     }
-};
 
-const getUsuario = (req, res) => {
-    
 }
 
 
 
 
-const usuariosServicioPost = async (req, res = response) => {
-
-    let {password, ...resto} = req.body;
-
-    const usuario = new User_Servicio({password, ...resto});
-
-     // Encriptar la contraseña
-     const salt = bcryptjs.genSaltSync();
-     usuario.password = bcryptjs.hashSync( password, salt );
-
-    await usuario.save()
-
-    res.json({
-        msg: 'post API - usuariosPost',
-        usuario
-      
-    });
-}
-const usuariosCompradorPost = async (req, res = response) => {
+const usuariosPost = async (req, res = response) => {
         
     let {password, ...resto} = req.body;
 
-    const usuario = new User_Comprador({password, ...resto});
+    const usuario = new User({password, ...resto});
 
     // Encriptar la contraseña
     const salt = bcryptjs.genSaltSync();
@@ -101,33 +40,30 @@ const usuariosCompradorPost = async (req, res = response) => {
     await usuario.save()
 
     res.json({
-        msg: 'post API - usuariosPost',
+       
+        usuario
+     
+    });
+}
+const AdminPost = async (req, res = response) => {
+        
+    let {password, ...resto} = req.body;
+
+    const usuario = new User_Admin({password, ...resto});
+
+    // Encriptar la contraseña
+    const salt = bcryptjs.genSaltSync();
+    usuario.password = bcryptjs.hashSync( password, salt );
+
+    await usuario.save()
+
+    res.json({
+       
         usuario
      
     });
 }
 
-const usuariosVendedorPost = async (req, res = response) => {
-
-    let {password, ...resto} = req.body;
-
-    const usuarioVendedor = new User_Vendedor({password, ...resto});
-    const usuarioComprador = new User_Comprador({password, ...resto});
-
-    // Encriptar la contraseña
-    const salt = bcryptjs.genSaltSync();
-    usuarioVendedor.password = bcryptjs.hashSync( password, salt );
-    usuarioComprador.password = bcryptjs.hashSync( password, salt );
-
-    await usuarioVendedor.save()
-    await usuarioComprador.save()
-
-    res.json({
-        msg: 'post API - usuariosPost',
-        usuario 
-        
-    });
-}
 
 const usuariosPut = async (req, res = response) => {
 
@@ -136,7 +72,7 @@ const usuariosPut = async (req, res = response) => {
     const { _id, password, correo, ...resto } = req.body;
 
      // Buscar el usuario en las tres colecciones
-     let user = await User_Servicio.findById(id) || await User_Vendedor.findById(id) || await User_Comprador.findById(id);
+     let user = await User.findById(id)
 
      if (!user) {
          return res.status(404).json({
@@ -144,50 +80,184 @@ const usuariosPut = async (req, res = response) => {
          });
      }
  
-     const { rol } = user; 
+    
 
     if ( password ) {
         // Encriptar la contraseña
         const salt = bcryptjs.genSaltSync();
         resto.password = bcryptjs.hashSync( password, salt );
     }
-
+        usuario = await User.findByIdAndUpdate( id, resto );
     
-
-    switch (rol) {
-        case 'USER_SERVICE':
-            usuario = await User_Servicio.findByIdAndUpdate( id, resto );
-            break;
-        case 'USER_SELLER':
-            usuario = await User_Vendedor.findByIdAndUpdate( id, resto );
-        break;
-        case 'USER_BUYER':
-            usuario = await User_Comprador.findByIdAndUpdate( id, resto );
-        break;
-        default:
-            break;
-    }  
-    
-
     res.json(usuario);
 }
 
 
+const productosCompradosporUsuario = async (req, res) => {
+    const uid = req.uid;
 
-const usuariosDelete = (req, res = response) => {
-    res.json({
-        msg: 'delete API - usuariosDelete'
-    });
-}
+    try {
+        // Selecciona los campos relevantes desde la base de datos
+        const items = await Compra.find({ usuarioId: uid }).select('_id producto estado');
+
+        if (!items || items.length === 0) {
+            return res.status(200).json({
+                msg: 'No hay productos comprados para este usuario.',
+                productos: []
+            });
+        }
+
+        // Mapea los datos para devolver un array estructurado
+        const productos = items.map(item => ({
+            id: item._id,
+            nombre: item.producto.nombre,
+            marca: item.producto.marca,
+            modelo: item.producto.modelo,
+            estado: item.estado
+        }));
+
+        res.status(200).json({
+            productos
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            msg: 'Error al obtener los productos.',
+            error
+        });
+    }
+};
+
+
+const productosvendidosporUsuario = async (req, res) => {
+    const uid = req.uid;
+    console.log(uid)
+    try {
+        // Selecciona solo el campo 'producto' de las ventas del usuario
+        const items = await Compra.find({ usuariovendedor: uid }).select('_id producto estado');
+
+        if (!items || items.length === 0) {
+            return res.status(200).json({
+                msg: 'No hay productos comprados para este usuario.',
+                productos: []
+            });
+        }
+
+         // Mapea los datos para devolver un array estructurado
+         const productos = items.map(item => ({
+            id: item._id,
+            nombre: item.producto.nombre,
+            marca: item.producto.marca,
+            modelo: item.producto.modelo,
+            estado: item.estado
+        }));
+
+        res.status(200).json({
+            productos
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            msg: 'Error al obtener los productos.',
+            error
+        });
+    }
+};
+
+//actualizar estado de compra
+const actualizarEstadoCompraComprador = async(req, res) => {
+    const { id } = req.query;
+    const {...body } = req.body;
+    const uid = req.uid;
+
+    try {
+        const usuario = await User.findById(uid);
+
+        if (!usuario) {
+            return res.status(404).json({
+                msg: 'Debe estar logueado para actualizar productos'
+            });
+        }
+
+        // Buscamos y actualizamos el producto
+        let producto = await Compra.findOneAndUpdate(
+            { _id: id, usuarioId: uid },
+            body,
+            { new: true }
+        );
+
+
+
+        if (!producto) {
+            return res.status(404).json({
+                msg: 'compra no encontrada'
+            });
+        }
+
+        res.json({
+            msg:"estado actualizado"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        });
+    }
+};
+
+const actualizarEstadoCompraVendedor = async(req, res) => {
+    const { id } = req.query;
+    const {...body } = req.body;
+    const uid = req.uid;
+
+    try {
+        const usuario = await User.findById(uid);
+
+        if (!usuario) {
+            return res.status(404).json({
+                msg: 'Debe estar logueado para actualizar productos'
+            });
+        }
+        console.log(id, uid);
+        
+        // Buscamos y actualizamos el producto
+        let producto = await Compra.findOneAndUpdate(
+            { _id: id, usuariovendedor: uid },
+            body,
+            { new: true }
+        );
+
+
+
+        if (!producto) {
+            return res.status(404).json({
+                msg: 'compra no encontrada'
+            });
+        }
+
+        res.json({
+            msg:"estado actualizado"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        });
+    }
+};
+
+
 
 
 
 
 module.exports = {
-    usuariosGetTotal,
-    usuariosServicioPost,
-    usuariosCompradorPost,
-    usuariosVendedorPost,
-    usuariosDelete,
-    usuariosPut
+    usuariosPost,
+    usuariosPut,
+    AdminPost,
+    getUsuario,
+    productosCompradosporUsuario,
+    productosvendidosporUsuario,
+    actualizarEstadoCompraComprador,
+    actualizarEstadoCompraVendedor
 }

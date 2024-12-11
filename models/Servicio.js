@@ -1,33 +1,17 @@
 
 const {Schema, model } = require('mongoose');
 
-const ServicioSchema = Schema({
-    nombre:{
-        type: String,
-        required: [true, 'El nombre es requerido']
-    },
-    correo:{
-        type: String,
-        required: [true, 'El correo es requerido'],
-        unique: true
-    },
-    password:{
-        type: String,
-        required: [true, 'La password es requerida']
+const UserSchema = Schema({
+    usuarioId: [
+        { type: Schema.Types.ObjectId, ref: 'User' }
+    ],
+    usuario: {
+        type: Object,
+        required: true
     },
     img:{
         type: String,
         
-    },
-    rol:{
-        type: String,
-        required: true,
-        enum: 'USER_SERVICE'
-    }, 
-    estado:{
-        type: Boolean,
-        default: true,
-      
     },
     direccion:{
         type: String,
@@ -54,14 +38,6 @@ const ServicioSchema = Schema({
         type: String,
         required: [true, 'el rubro es requerida']
     },
-    servicio:{
-        type: String,
-        required: [true, 'el servicio es requerida']
-    },
-    experiencia:{
-        type: String,
-    
-    },
     titulo:{
         type: String,
         required: true
@@ -72,21 +48,19 @@ const ServicioSchema = Schema({
         required: true
     
     },
-    foto:{
-        type: String,
-        
-    
-    },
     video:{
         type: String,
         
     
     },
     precio:{
-        type: Number,
-        required: true
+        type: Number
     
     },
 })
-
-module.exports= model('User_Servicio', ServicioSchema)
+UserSchema.methods.toJSON = function() {
+    const { __v, password, _id, ...usuario  } = this.toObject();
+    usuario.uid = _id;
+    return usuario;
+}
+module.exports= model('Servicio', UserSchema)
