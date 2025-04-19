@@ -21,13 +21,17 @@ const ComprasSchema = Schema({
     servicio: {
         type: Object
     },
-    estado:{
-        type: String,
-        required: true
-    },
     tipo:{
         type: String
-    }
+    },
+    estados:{
+        type:String,
+        enum:["En preparacion", "Rechazado","En camino", "Listo para entregar", "Enviado", "Entregado"]
+    },
+    entregadoConfirmadoPorComprador: {
+        type: Boolean,
+        default: false
+      }
    
 })
 

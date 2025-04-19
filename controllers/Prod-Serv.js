@@ -10,6 +10,7 @@ const Servicio = require('../models/Servicio');
 const generarLinkDePago = require('../middlewares/mercado-pago');
 const Compra = require('../models/compras');
 const Categoria = require('../models/categoria');
+const Ofertas = require('../models/ofertas');
 
 
 const crearProducto = async (req, res) => {
@@ -468,7 +469,7 @@ const comprarProducto =async(req, res) => {
                 // Generar un ID único
                 const idCorto = nanoid();
                 const compra = new Compra({
-                    usuarioId: uid, usuario, producto : producto,  estado:'En Preparacion', idcorto:idCorto, tipo:'Producto', usuariovendedor:usuariovendedor
+                    usuarioId: uid, usuario, producto : producto,  estados:'En preparacion', idcorto:idCorto, tipo:'Producto', usuariovendedor:usuariovendedor
                 })
 
                 await compra.save();
@@ -495,6 +496,128 @@ const comprarProducto =async(req, res) => {
         res.status(500).json({
             msg: 'Error del servidor'
         });
+    }
+}
+//actualizar estado de producto comprado
+const actualizarCompra = async (req, res)=>{
+    const uid = req.uid;
+    const estado = req.query.estado
+    const id = req.query.id
+
+    const usuario = await User.findById(uid).lean();  // Usar .lean() para obtener un objeto JavaScript plano
+    if (!usuario) {
+        return res.status(404).json({
+            msg: 'Debe estar logueado para actualizar la compra'
+        });
+    }
+
+    try {
+        if (estado === 'Entregado') {
+            // El vendedor lo marcó como entregado, pero falta confirmación
+            await Compra.findByIdAndUpdate(id, {
+                estados: 'Entregado',
+                entregadoConfirmadoPorComprador: false
+            }, { new: true });
+        } else {
+            await Compra.findByIdAndUpdate(id, {
+                estados: estado
+            }, { new: true });
+        }
+
+        res.json({
+            msg:"compra actualizada a estado" + estado
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        });
+    }
+}
+
+const confirmarEntrega = async (req, res) => {
+    const uid = req.uid;
+    const id = req.query.id;
+
+    try {
+        const compra = await Compra.findById(id);
+
+        if (!compra) {
+            return res.status(404).json({ msg: 'Compra no encontrada' });
+        }
+
+        // Validar que quien confirma es el comprador
+        if (!compra.usuarioId.includes(uid)) {
+            return res.status(403).json({ msg: 'No estás autorizado para confirmar esta entrega' });
+        }
+
+        // Confirmar la entrega
+        compra.entregadoConfirmadoPorComprador = true;
+        await compra.save();
+
+        res.json({ msg: 'Entrega confirmada por el comprador', compra });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        });
+    }
+
+    
+};
+
+const agregarComentario = async (req, res)=>{
+    const uid = req.uid;
+    const {mensaje, estrellas}= req.body;
+    const idCompra = req.query.idCompra
+
+    const usuario = await User.findById(uid);
+    if (!usuario) {
+        return res.status(404).json({
+            msg: 'Debe estar logueado para realizar la accion'
+        });
+    }
+
+    try {
+
+        const compra = await Compra.findById(idCompra);
+        if(!compra){
+            return res.json({
+                msg: "no hay compra con ese id"
+            })
+        }
+        if(estrellas>5 || estrellas<1){
+            return res.json({
+                msg:"las estrellas van de 1 a 5"
+            })
+        }
+        const idProducto = compra.producto._id
+        const nuevoComentario = {
+            estrellas,
+            mensaje,
+            fecha: new Date()
+        };
+
+        const productoActualizado = await Producto.findByIdAndUpdate(
+            idProducto,
+            { $push: { comentarios: nuevoComentario } },
+            { new: true }
+        );
+
+        if (!productoActualizado) {
+            return res.status(404).json({ msg: "Producto no encontrado" });
+        }
+
+        res.json({
+            msg: "Comentario agregado con éxito",
+            producto: productoActualizado
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        }); 
     }
 }
 
@@ -631,6 +754,142 @@ const obtenerSubCategoriasVisibles = async (req, res) => {
 };
 
 
+//rutas de creacion de oferta
+const crearOferta = async (req, res) => {
+    const uid = req.uid;
+    const {idComprador, ...rest} = req.body
+    try {
+        const usuario = await User.findById(uid);
+        if (!usuario) {
+            return res.status(404).json({
+                msg: 'Debe estar logueado para realizar la accion'
+            });
+        }
+
+        //buscar al usuario q solicita el servicio
+        const userComprador = await User.findById(idComprador);
+       
+
+        const nuevaOferta = new Ofertas({
+            ...rest,
+            proveedor: {
+                id: usuario._id.toString(),
+                nombre: usuario.nombre
+            },
+            comprador: {
+                id: userComprador._id.toString(),
+                nombre: userComprador.nombre
+            }
+        });
+        await nuevaOferta.save();
+
+        res.json({
+            msg: "Oferta creada con éxito",
+            oferta: nuevaOferta
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error al crear la oferta" });
+    }
+};
+
+const actualizarEtapa = async (req, res) => {
+    const id  = req.query.id;
+
+    try {
+        const oferta = await Ofertas.findById(id);
+        if (!oferta) return res.status(404).json({ msg: "Oferta no encontrada" });
+
+        if (oferta.etapasRealizadas >= oferta.cantidadDeEtapas) {
+            return res.status(400).json({ msg: "Ya se completaron todas las etapas" });
+        }
+
+        oferta.etapasRealizadas += 1;
+
+        if (oferta.etapasRealizadas === oferta.cantidadDeEtapas) {
+            oferta.estadoFinal = "terminado";
+        }
+
+        await oferta.save();
+
+        res.json({
+            msg: "Etapa actualizada",
+            oferta
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error al actualizar etapa" });
+    }
+};
+
+const borrarOferta = async (req, res) => {
+    const id  = req.query.id;
+
+    try {
+        const oferta = await Ofertas.findByIdAndUpdate(id, { estado: false }, { new: true });
+        if (!oferta) return res.status(404).json({ msg: "Oferta no encontrada" });
+
+        res.json({
+            msg: "Oferta marcada como eliminada",
+            oferta
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error al borrar la oferta" });
+    }
+};
+
+const borrarOfertaDefinitivamente = async (req, res) => {
+    const id  = req.query.id;
+
+    try {
+        const oferta = await Ofertas.findByIdAndDelete(id);
+        if (!oferta) return res.status(404).json({ msg: "Oferta no encontrada" });
+
+        res.json({
+            msg: "Oferta eliminada permanentemente"
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error al eliminar definitivamente la oferta" });
+    }
+};
+
+const subirImagenOferta = async (req, res) => {
+    const id = req.query.id;
+
+    try {
+        const oferta = await Ofertas.findById(id);
+        if (!oferta) return res.status(404).json({ msg: "Oferta no encontrada" });
+
+        if (oferta.resultado !== "terminado") {
+            return res.status(400).json({ msg: "La oferta no está terminada aún" });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({ msg: "No se subió ninguna imagen" });
+        }
+
+        const result = await cloudinary.uploader.upload(req.file.path, {
+            folder: 'ofertas'
+        });
+
+        oferta.imagen = result.secure_url;
+        await oferta.save();
+
+        res.json({
+            msg: "Imagen subida correctamente",
+            oferta
+        });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error al subir imagen" });
+    }
+};
+
+
+
 module.exports ={
     crearProducto,
     crearServicio,
@@ -652,5 +911,13 @@ module.exports ={
     obtenerSubCategoriasVisibles,
     getProductosAleatorio,
     getProductosAleatorio1,
-    getProductosAleatorio2
+    getProductosAleatorio2,
+    actualizarCompra,
+    confirmarEntrega,
+    agregarComentario,
+    crearOferta,
+    actualizarEtapa,
+    borrarOferta,
+    borrarOfertaDefinitivamente,
+    subirImagenOferta
 }

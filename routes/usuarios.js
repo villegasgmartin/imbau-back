@@ -24,7 +24,11 @@ const {  usuariosGetTotal,
         productosCompradosporUsuario,
         productosvendidosporUsuario,
         actualizarEstadoCompraComprador,
-        actualizarEstadoCompraVendedor} = require('../controllers/usuarios');
+        actualizarEstadoCompraVendedor,
+        borrarChat,
+        getChatsCliente,
+        getOrCreateConversation,
+        enviarMensaje, obtenerMensajes } = require('../controllers/usuarios');
 
 const router = Router();
 
@@ -106,6 +110,39 @@ router.put('/estado-vendedor',[
 router.put('/estado-comprador',[
     validarJWT,
 ],actualizarEstadoCompraComprador);
+
+
+//chat
+//*****chat */
+
+router.post('/new-chat'
+    //     , [
+    //     validarJWT,
+    //     validarCampos
+    // ]
+    ,getOrCreateConversation)
+    
+    
+    router.get('/chats',[
+        validarJWT,
+        validarCampos
+    ] ,getChatsCliente)
+    
+    //enviar y get de mensajes
+    router.post('/enviar-mensaje',[
+        validarJWT,
+        validarCampos 
+    ] ,enviarMensaje)
+    
+    router.get('/listado-mensajes', [
+        validarJWT,
+        validarCampos 
+    ], obtenerMensajes)
+    
+    router.delete('/chats/:id',[
+        validarJWT,
+        validarCampos  
+    ] ,borrarChat);
 
 
 
