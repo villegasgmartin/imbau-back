@@ -23,7 +23,8 @@ const OfertasSchema = Schema({
         type:Number
     },
     etapasRealizadas:{
-        type:Number
+        type:Number,
+        defaul: 0
     },
     presupuesto:{
         type:Number

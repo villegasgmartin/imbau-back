@@ -1,6 +1,8 @@
 const { response, request } = require('express');
 const { customAlphabet } = require('nanoid');
 
+const cloudinary = require('cloudinary').v2;
+cloudinary.config(process.env.CLOUDINARY_URL);
 
 //modelos de usuario
 const User = require('../models/usuario')
@@ -99,7 +101,7 @@ const crearServicio = async (req, res) =>{
         res.status(404).json({message: error.message});
     }
 }
-
+//get productos aleatorio
 const getProductosAleatorio = async (req, res) => {
     try {
         const productos = await Producto.aggregate([
@@ -140,6 +142,46 @@ const getProductosAleatorio2 = async (req, res) => {
     }
 };
 
+//get servicios aleatorio
+const getServiciosAleatorio = async (req, res) => {
+    try {
+        const servicios = await Servicio.aggregate([
+            { $sample: { size: await Servicio.countDocuments() } }
+        ]);
+        res.json(servicios);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const getServiciosAleatorio1 = async (req, res) => {
+    try {
+        const totalServicios = await Servicio.countDocuments();
+        const servicios = await Servicio.aggregate([{ $sample: { size: Math.ceil(totalServicios / 2) } }]);
+        res.json(servicios);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const getServicioleatorio2 = async (req, res) => {
+    try {
+        const servicio = await Servicio.find();
+        
+        // Mezclar manualmente los productos
+        for (let i = servicio.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [servicio[i], servicio[j]] = [servicio[j], servicio[i]];
+        }
+
+        res.json(servicio);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
 const getServicios = async(req, res)=>{
 
     try {
@@ -504,7 +546,7 @@ const actualizarCompra = async (req, res)=>{
     const estado = req.query.estado
     const id = req.query.id
 
-    const usuario = await User.findById(uid).lean();  // Usar .lean() para obtener un objeto JavaScript plano
+    const usuario = await User.findById(uid)  // Usar .lean() para obtener un objeto JavaScript plano
     if (!usuario) {
         return res.status(404).json({
             msg: 'Debe estar logueado para actualizar la compra'
@@ -591,6 +633,7 @@ const agregarComentario = async (req, res)=>{
                 msg:"las estrellas van de 1 a 5"
             })
         }
+        console.log(Object(compra.producto._id));
         const idProducto = compra.producto._id
         const nuevoComentario = {
             estrellas,
@@ -760,9 +803,9 @@ const crearOferta = async (req, res) => {
     const {idComprador, ...rest} = req.body
     try {
         const usuario = await User.findById(uid);
-        if (!usuario) {
+        if (!usuario || usuario.rol != "USER_SERVICE") {
             return res.status(404).json({
-                msg: 'Debe estar logueado para realizar la accion'
+                msg: 'Debe estar logueado para realizar la accion o ser vendedor de servicios'
             });
         }
 
@@ -862,19 +905,25 @@ const subirImagenOferta = async (req, res) => {
         const oferta = await Ofertas.findById(id);
         if (!oferta) return res.status(404).json({ msg: "Oferta no encontrada" });
 
-        if (oferta.resultado !== "terminado") {
+        if (oferta.estadoFinal !== "terminado") {
             return res.status(400).json({ msg: "La oferta no está terminada aún" });
         }
 
-        if (!req.file) {
+        if (!req.files.imagen) {
             return res.status(400).json({ msg: "No se subió ninguna imagen" });
         }
 
-        const result = await cloudinary.uploader.upload(req.file.path, {
-            folder: 'ofertas'
-        });
+        const { tempFilePath } = req.files.imagen;
 
-        oferta.imagen = result.secure_url;
+		const { secure_url } = await cloudinary.uploader.upload(tempFilePath);
+
+		// imgEntrada = secure_url;
+
+        // const result = await cloudinary.uploader.upload(req.files.imagen.path, {
+        //     folder: 'ofertas'
+        // });
+
+        oferta.imagen = secure_url;
         await oferta.save();
 
         res.json({
@@ -889,6 +938,54 @@ const subirImagenOferta = async (req, res) => {
 };
 
 
+const ofertasTerminadas = async (req, res) =>{
+    const id = req.query.id
+
+    const usuario = await User.findById(id);
+    if (!usuario || usuario.rol != "USER_SERVICE") {
+        return res.status(404).json({
+            msg: 'Debe estar logueado para realizar la accion o ser vendedor de servicios'
+        });
+    }
+
+    try {
+        const ofertasTerminadas = await Ofertas.find({estadoFinal:"terminado", "proveedor.id": usuario._id.toString()});
+
+        res.json(ofertasTerminadas)
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error en peticion" });
+    }
+
+}
+
+const getOfertasPorId = async (req, res) =>{
+    const uid = req.uid
+
+    const usuario = await User.findById(uid);
+    if (!usuario || usuario.rol != "USER_SERVICE") {
+        return res.status(404).json({
+            msg: 'Debe estar logueado para realizar la accion o ser vendedor de servicios'
+        });
+    }
+
+    console.log(usuario._id.toString())
+
+    try {
+        const ofertaPorId = await Ofertas.find({
+            "proveedor.id": usuario._id.toString()
+          });
+          
+
+        res.json(ofertaPorId)
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error en peticion" });
+    }
+
+}
 
 module.exports ={
     crearProducto,
@@ -919,5 +1016,10 @@ module.exports ={
     actualizarEtapa,
     borrarOferta,
     borrarOfertaDefinitivamente,
-    subirImagenOferta
+    subirImagenOferta,
+    getServiciosAleatorio,
+    getServiciosAleatorio1,
+    getServicioleatorio2,
+    ofertasTerminadas,
+    getOfertasPorId
 }

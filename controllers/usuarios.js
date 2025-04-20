@@ -334,7 +334,6 @@ const getOrCreateConversation = async (req, res) =>{
           if (!chat) {
               return res.status(404).json({ msg: 'Chat no encontrado' });
           }
-  
           // Agregar el mensaje al chat
           const nuevoMensaje = {
               tipo,
