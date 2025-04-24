@@ -33,7 +33,10 @@ const {  crearProducto,
     borrarOfertaDefinitivamente,
     subirImagenOferta,
     ofertasTerminadas,
-    getOfertasPorId} = require('../controllers/Prod-Serv');
+    getOfertasPorId,
+    ofertasPendientes,
+    ofertasFalsas,
+    agregarComentarioOferta} = require('../controllers/Prod-Serv');
 const { validarJWT } = require('../middlewares');
 const { esRoleValido } = require('../helpers/db-validators');
 
@@ -161,6 +164,26 @@ router.get('/ofertas',[
     validarJWT,
     validarCampos
 ], getOfertasPorId)
+
+//todas las ofertas pendientes
+router.get('/ofertas-pendientes',[
+    validarJWT,
+    validarCampos
+], ofertasPendientes)
+
+//todas las ofertas interrumpidas
+router.get('/ofertas-interrumpidas',[
+    validarJWT,
+    validarCampos
+], ofertasFalsas)
+
+
+//todas las ofertas interrumpidas
+router.post('/ofertas-comentario',[
+    validarJWT,
+    validarCampos
+], agregarComentarioOferta)
+
 
 
 module.exports = router;

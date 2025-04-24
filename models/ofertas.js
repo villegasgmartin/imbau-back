@@ -58,7 +58,23 @@ const OfertasSchema = Schema({
     estadoFinal:{
         type:String,
         default:"Pendiente"
-    }
+    },
+    comentarios: [{
+        estrellas: {
+          type: Number,
+          required: true,
+          min: 1,
+          max: 5
+        },
+        mensaje: {
+          type: String,
+          required: true
+        },
+        fecha: {
+          type: Date,
+          default: Date.now
+        }
+      }]
 
 
 });

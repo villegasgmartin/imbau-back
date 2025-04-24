@@ -266,8 +266,6 @@ const getProductoPorUsuario = async(req, res = response) => {
 const getServicioPorUsuario = async(req, res = response) => {
     const { limite = 5, desde = 0 } = req.query;
     const uid = req.uid
-
-
     const query = { usuario: uid };
 
     try {
@@ -942,16 +940,77 @@ const ofertasTerminadas = async (req, res) =>{
     const id = req.query.id
 
     const usuario = await User.findById(id);
-    if (!usuario || usuario.rol != "USER_SERVICE") {
+    if (!usuario) {
         return res.status(404).json({
-            msg: 'Debe estar logueado para realizar la accion o ser vendedor de servicios'
+            msg: 'Debe estar logueado para realizar la accion'
         });
     }
 
     try {
-        const ofertasTerminadas = await Ofertas.find({estadoFinal:"terminado", "proveedor.id": usuario._id.toString()});
+        let ofertasTerminadas;
+        if(usuario.rol === "USER_SERVICE"){
+            ofertasTerminadas = await Ofertas.find({estadoFinal:"terminado", "proveedor.id": usuario._id.toString()});
+        }else{
+            ofertasTerminadas = await Ofertas.find({estadoFinal:"terminado", "comprador.id": usuario._id.toString()});
+
+        }
 
         res.json(ofertasTerminadas)
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error en peticion" });
+    }
+
+}
+const ofertasPendientes = async (req, res) =>{
+    const id = req.uid;
+
+    const usuario = await User.findById(id);
+    if (!usuario) {
+        return res.status(404).json({
+            msg: 'Debe estar logueado para realizar la accion'
+        });
+    }
+
+    try {
+        let ofertasPendientes;
+        if(usuario.rol === "USER_SERVICE"){
+            ofertasPendientes = await Ofertas.find({estadoFinal:"Pendiente", "proveedor.id": usuario._id.toString()});
+        }else{
+            ofertasendientes = await Ofertas.find({estadoFinal:"Pendiente", "comprador.id": usuario._id.toString()});
+
+        }
+
+        res.json(ofertasPendientes)
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ msg: "Error en peticion" });
+    }
+
+}
+
+const ofertasFalsas = async (req, res) =>{
+    const id = req.uid
+
+    const usuario = await User.findById(id);
+    if (!usuario) {
+        return res.status(404).json({
+            msg: 'Debe estar logueado para realizar la accion'
+        });
+    }
+
+    try {
+        let ofertasInterrumpidas;
+        if(usuario.rol === "USER_SERVICE"){
+            ofertasInterrumpidas = await Ofertas.find({estado:false, "proveedor.id": usuario._id.toString()});
+        }else{
+            ofertasInterrumpidas = await Ofertas.find({estado:false, "comprador.id": usuario._id.toString()});
+
+        }
+
+        res.json(ofertasInterrumpidas)
         
     } catch (error) {
         console.log(error);
@@ -987,6 +1046,63 @@ const getOfertasPorId = async (req, res) =>{
 
 }
 
+const agregarComentarioOferta = async (req, res)=>{
+    const uid = req.uid;
+    const {mensaje, estrellas}= req.body;
+    const idOferta = req.query.idOferta
+
+    const usuario = await User.findById(uid);
+    if (!usuario) {
+        return res.status(404).json({
+            msg: 'Debe estar logueado para realizar la accion'
+        });
+    }
+
+    try {
+
+        const oferta = await Ofertas.findById(idOferta);
+        if(!oferta){
+            return res.json({
+                msg: "no hay oferta con ese id"
+            })
+        }
+        if(estrellas>5 || estrellas<1){
+            return res.json({
+                msg:"las estrellas van de 1 a 5"
+            })
+        }
+        
+        const nuevoComentario = {
+            estrellas,
+            mensaje,
+            fecha: new Date()
+        };
+
+        const ofertaActualizada = await Ofertas.findByIdAndUpdate(
+            idOferta,
+            { $push: { comentarios: nuevoComentario } },
+            { new: true }
+        );
+
+        if (!ofertaActualizada) {
+            return res.status(404).json({ msg: "Producto no encontrado" });
+        }
+
+        res.json({
+            msg: "Comentario agregado con éxito",
+            oferta: ofertaActualizada
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        }); 
+    }
+}
+
+
+
 module.exports ={
     crearProducto,
     crearServicio,
@@ -1021,5 +1137,8 @@ module.exports ={
     getServiciosAleatorio1,
     getServicioleatorio2,
     ofertasTerminadas,
-    getOfertasPorId
+    getOfertasPorId,
+    ofertasPendientes,
+    ofertasFalsas,
+    agregarComentarioOferta
 }
