@@ -262,15 +262,15 @@ const getOrCreateConversation = async (req, res) =>{
       //buscar nombre de escort
       const service = await Servicio.findById(prestador);
 
-      const idPrestador = service.usuarioId
+      const idPrestador = service.usuario._id
   
       let chat = await ChatImbau.findOne({
-        usuarioComprador:usuario, Proveedor:prestador
+        usuarioComprador:usuario, Proveedor:idPrestador
       });
   
       if (!chat) {
         chat = new ChatImbau({
-            usuarioComprador:usuario, Proveedor:prestador, usuarioNombre:nombreClient, proveedorNombre:service.usuario.nombre
+            usuarioComprador:usuario, Proveedor:idPrestador, usuarioNombre:nombreClient, proveedorNombre:service.usuario.nombre
         });
         await chat.save();
       }
@@ -287,9 +287,12 @@ const getOrCreateConversation = async (req, res) =>{
   //get de todos los chat creados
   const getChatsCliente = async(req, res) => {
       const uid = req.uid
+      console.log("usuario id", uid)
   
       try {
-          const chat = await ChatImbau.find({usuarioComprador:uid}) ||  await ChatImbau.find({Proveedor:uid});
+          const chat = await ChatImbau.find({
+            $or: [{ usuarioComprador: uid }, { Proveedor: uid }],
+        })
   
           if(!chat){
               return res.status(301).json({message: " no hay chats disponibles"});
