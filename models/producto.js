@@ -70,9 +70,22 @@ const ServicioSchema = Schema({
         type: Number,
         required: true
     },
-    estrellas:{
-        type: Number
-    }
+    comentarios: [{
+        estrellas: {
+          type: Number,
+          required: true,
+          min: 1,
+          max: 5
+        },
+        mensaje: {
+          type: String,
+          required: true
+        },
+        fecha: {
+          type: Date,
+          default: Date.now
+        }
+      }]
 });
 
 
