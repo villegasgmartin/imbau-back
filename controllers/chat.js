@@ -2,7 +2,7 @@ const Chat = require('../models/ChatImbau');
 
 const crearChat = async (req, res) => {
     const { proveedorID } = req.body;
-    const usuarioId = req.user.id;
+    const usuarioId = req.userId;
 
     try {
         let chat = await Chat.findOne({ usuarioComprador: usuarioId, Proveedor: proveedorID });
@@ -20,7 +20,7 @@ const crearChat = async (req, res) => {
 };
 
 const obtenerChats = async (req, res) => {
-    const userId = req.user.id;
+    const userId = req.userId;
 
     try {
         const chats = await Chat.find({
@@ -55,7 +55,7 @@ const obtenerMensajes = async (req, res) => {
 
 const enviarMensaje = async (req, res) => {
     const { chatId, mensaje } = req.body;
-    const remitente = req.user.id;
+    const remitente = req.userId;
 
     try {
         const chat = await Chat.findById(chatId);
