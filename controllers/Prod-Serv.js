@@ -145,9 +145,7 @@ const getProductosAleatorio2 = async (req, res) => {
 //get servicios aleatorio
 const getServiciosAleatorio = async (req, res) => {
     try {
-        const servicios = await Servicio.aggregate([
-            { $sample: { size: await Servicio.countDocuments() } }
-        ]);
+        const servicios = await Servicio.find();
         res.json(servicios);
     } catch (error) {
         console.error(error);
