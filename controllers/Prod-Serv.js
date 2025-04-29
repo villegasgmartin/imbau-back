@@ -976,7 +976,7 @@ const ofertasPendientes = async (req, res) =>{
         if(usuario.rol === "USER_SERVICE"){
             ofertasPendientes = await Ofertas.find({estadoFinal:"Pendiente", "proveedor.id": usuario._id.toString()});
         }else{
-            ofertasendientes = await Ofertas.find({estadoFinal:"Pendiente", "comprador.id": usuario._id.toString()});
+            ofertasPendientes = await Ofertas.find({estadoFinal:"Pendiente", "comprador.id": usuario._id.toString()});
 
         }
 
@@ -1021,18 +1021,26 @@ const getOfertasPorId = async (req, res) =>{
     const uid = req.uid
 
     const usuario = await User.findById(uid);
-    if (!usuario || usuario.rol != "USER_SERVICE") {
+    if (!usuario) {
         return res.status(404).json({
-            msg: 'Debe estar logueado para realizar la accion o ser vendedor de servicios'
+            msg: 'Debe estar logueado para realizar la accion'
         });
     }
 
     console.log(usuario._id.toString())
 
     try {
-        const ofertaPorId = await Ofertas.find({
-            "proveedor.id": usuario._id.toString()
-          });
+        let ofertaPorId;
+        if(usuario.rol === "USER_SERVICE"){
+            ofertaPorId = await Ofertas.find({
+                "proveedor.id": usuario._id.toString()
+              });
+        }else{
+            ofertaPorId = await Ofertas.find({
+                "comprador.id": usuario._id.toString()
+              });
+        }
+       
           
 
         res.json(ofertaPorId)
@@ -1099,6 +1107,26 @@ const agregarComentarioOferta = async (req, res)=>{
     }
 }
 
+const getOfertaporId = async (req, res)=>{
+    const id = req.query.id
+
+    try {
+        const oferta = await Ofertas.findById(id);
+        if(!oferta){
+            return res.json({
+                msg:'No hay oferta por ese id'
+            })
+        }
+        res.status(200).json({
+            oferta
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        });  
+    }
+}
 
 
 module.exports ={
@@ -1136,6 +1164,7 @@ module.exports ={
     getServicioleatorio2,
     ofertasTerminadas,
     getOfertasPorId,
+    getOfertaporId,
     ofertasPendientes,
     ofertasFalsas,
     agregarComentarioOferta
