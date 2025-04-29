@@ -974,9 +974,9 @@ const ofertasPendientes = async (req, res) =>{
     try {
         let ofertasPendientes;
         if(usuario.rol === "USER_SERVICE"){
-            ofertasPendientes = await Ofertas.find({estadoFinal:"Pendiente", "proveedor.id": usuario._id.toString()});
+            ofertasPendientes = await Ofertas.find({estadoFinal:"Pendiente", "proveedor.id": usuario._id.toString(), estado:true});
         }else{
-            ofertasPendientes = await Ofertas.find({estadoFinal:"Pendiente", "comprador.id": usuario._id.toString()});
+            ofertasPendientes = await Ofertas.find({estadoFinal:"Pendiente", "comprador.id": usuario._id.toString(), estado:true});
 
         }
 
@@ -1128,6 +1128,34 @@ const getOfertaporId = async (req, res)=>{
     }
 }
 
+//get ofertas por servicio
+const getOfertasporServicio = async (req, res)=>{
+    const idServicio = req.query.idServicio
+
+    try {
+
+        const {usuarioId} = await Servicio.findById(idServicio);
+        console.log(usuarioId);
+        const idproevedor = usuarioId.toString()
+        console.log(idproevedor);
+        //buscar ofertas con ese id
+
+        const ofertas = await Ofertas.find({
+            "proveedor.id": idproevedor,
+            estadoFinal:"terminado"
+          });
+
+        res.status(200).json(ofertas)
+
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            msg: 'Error del servidor'
+        });  
+    }
+}
+
 
 module.exports ={
     crearProducto,
@@ -1167,5 +1195,6 @@ module.exports ={
     getOfertaporId,
     ofertasPendientes,
     ofertasFalsas,
-    agregarComentarioOferta
+    agregarComentarioOferta,
+    getOfertasporServicio
 }

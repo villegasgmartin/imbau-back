@@ -53,7 +53,8 @@ const OfertasSchema = Schema({
         default:true
     },
     imagen: {
-        type: String
+        type: String,
+        default:'https://res.cloudinary.com/dj3akdhb9/image/upload/v1745964534/servicios-default.png'
     },
     estadoFinal:{
         type:String,
