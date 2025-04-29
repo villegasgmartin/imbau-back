@@ -36,7 +36,8 @@ const {  crearProducto,
     getOfertasPorId,
     ofertasPendientes,
     ofertasFalsas,
-    agregarComentarioOferta} = require('../controllers/Prod-Serv');
+    agregarComentarioOferta,
+    getOfertaporId} = require('../controllers/Prod-Serv');
 const { validarJWT } = require('../middlewares');
 const { esRoleValido } = require('../helpers/db-validators');
 
@@ -183,6 +184,9 @@ router.post('/ofertas-comentario',[
     validarJWT,
     validarCampos
 ], agregarComentarioOferta)
+
+//get oferta sola
+router.get('/oferta', getOfertaporId)
 
 
 
