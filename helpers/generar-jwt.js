@@ -8,7 +8,7 @@ const generarJWT = ( uid = '' ) => {
 
         const payload = { uid };
 
-        jwt.sign( payload, process.env.SECRETORPRIVATEKEY, {
+        jwt.sign( payload, 's#c$3rt!mb@uVAl()3', {
             expiresIn: '4h'
         }, ( err, token ) => {
 
