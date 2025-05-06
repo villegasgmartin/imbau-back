@@ -862,21 +862,26 @@ const actualizarEtapa = async (req, res) => {
 };
 
 const borrarOferta = async (req, res) => {
-    const id  = req.query.id;
+    const id = req.query.id;
 
     try {
-        const oferta = await Ofertas.findByIdAndUpdate(id, { estado: false }, { new: true });
-        if (!oferta) return res.status(404).json({ msg: "Oferta no encontrada" });
+        const ofertaActual = await Ofertas.findById(id);
+        if (!ofertaActual) return res.status(404).json({ msg: "Oferta no encontrada" });
+
+        const nuevoEstado = !ofertaActual.estado;
+
+        const oferta = await Ofertas.findByIdAndUpdate(id, { estado: nuevoEstado }, { new: true });
 
         res.json({
-            msg: "Oferta marcada como eliminada",
+            msg: "Estado de la oferta actualizado",
             oferta
         });
     } catch (error) {
         console.log(error);
-        res.status(500).json({ msg: "Error al borrar la oferta" });
+        res.status(500).json({ msg: "Error al actualizar la oferta" });
     }
 };
+
 
 const borrarOfertaDefinitivamente = async (req, res) => {
     const id  = req.query.id;
