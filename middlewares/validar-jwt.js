@@ -41,7 +41,7 @@ const validarJWT = async( req = request, res = response, next ) => {
 
     try {
         
-        const { uid } = jwt.verify( token, process.env.SECRETORPRIVATEKEY );
+        const { uid } = jwt.verify( token, "s#c$3rt!mb@uVAl()3" );
         console.log(uid)
         req.uid = uid;
 
