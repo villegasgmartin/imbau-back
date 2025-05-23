@@ -14,7 +14,7 @@ class Server {
         this.authPath     = '/api/auth';
         this.productPath     = '/api/products';
         this.adminPath = '/api/admin';
-        this.chat = '/chat';
+
 
         //conectar BD
         this.conectarDB();
@@ -37,13 +37,6 @@ class Server {
         // Lectura y parseo del body
         this.app.use( express.json() );
 
-        //ip
-        // this.app.use((req, res, next) => {
-        //     const clientIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-        //     console.log('IP del cliente:', clientIp);
-        //     next();
-        // });
-
         // Directorio Público
         this.app.use( express.static('public') );
 
@@ -64,7 +57,7 @@ class Server {
         this.app.use( this.productPath, require('../routes/prod-serv'));
         this.app.use( this.buscar, require('../routes/buscar'));
         this.app.use( this.adminPath, require('../routes/admin'));
-        this.app.use( this.chat, require('../routes/chat'));
+   
     }
 
     listen() {

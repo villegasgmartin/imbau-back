@@ -167,7 +167,7 @@ const deleteProductosComprados = async(req, res)=>{
 //agregar banner
 const postBanner = async(req, res)=>{
     let {ubicacion, posicion, img, inicio, fin, nombre} = req.body;
-    console.log(req.body);
+
 
 
     try {
@@ -218,7 +218,6 @@ const getBanner = async (req, res) =>{
     try {
         
         const banner = await Banner.find(query);
-        console.log(banner[0]);
         //verificar fechas
         if(!banner[0] || fechaActual < banner[0].inicio || fechaActual > banner[0].fin ){
            return res.status(200).json({
@@ -251,7 +250,6 @@ const getTodosBaners = async (req, res) =>{
     try {
         
         const banner = await Banner.find(query);
-        console.log(banner[0]);
         //verificar fechas
         if(!banner[0] || fechaActual < banner[0].inicio || fechaActual > banner[0].fin ){
            return res.status(200).json({

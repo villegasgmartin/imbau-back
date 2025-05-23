@@ -49,7 +49,7 @@ const crearProducto = async (req, res) => {
             producto
         });
     } catch (error) {
-        console.error(error);
+       
         res.status(404).json({ message: error.message });
     }
 };
@@ -97,7 +97,8 @@ const crearServicio = async (req, res) =>{
         })
 
     } catch (error) {
-        console.error(error);
+  
+        
         res.status(404).json({message: error.message});
     }
 }
@@ -109,7 +110,7 @@ const getProductosAleatorio = async (req, res) => {
         ]);
         res.json(productos);
     } catch (error) {
-        console.error(error);
+
         res.status(500).json({ message: error.message });
     }
 };
@@ -120,7 +121,7 @@ const getProductosAleatorio1 = async (req, res) => {
         const productos = await Producto.aggregate([{ $sample: { size: Math.ceil(totalProductos / 2) } }]);
         res.json(productos);
     } catch (error) {
-        console.error(error);
+   
         res.status(500).json({ message: error.message });
     }
 };
@@ -137,7 +138,7 @@ const getProductosAleatorio2 = async (req, res) => {
 
         res.json(productos);
     } catch (error) {
-        console.error(error);
+        ;
         res.status(500).json({ message: error.message });
     }
 };
@@ -148,7 +149,7 @@ const getServiciosAleatorio = async (req, res) => {
         const servicios = await Servicio.find();
         res.json(servicios);
     } catch (error) {
-        console.error(error);
+        ;
         res.status(500).json({ message: error.message });
     }
 };
@@ -159,7 +160,7 @@ const getServiciosAleatorio1 = async (req, res) => {
         const servicios = await Servicio.aggregate([{ $sample: { size: Math.ceil(totalServicios / 2) } }]);
         res.json(servicios);
     } catch (error) {
-        console.error(error);
+        ;
         res.status(500).json({ message: error.message });
     }
 };
@@ -176,7 +177,7 @@ const getServicioleatorio2 = async (req, res) => {
 
         res.json(servicio);
     } catch (error) {
-        console.error(error);
+        ;
         res.status(500).json({ message: error.message });
     }
 };
@@ -186,7 +187,7 @@ const getServicios = async(req, res)=>{
         const servicios = await Servicio.find();
         res.json(servicios);
     } catch (error) {
-        console.error(error);
+        ;
         res.status(404).json({message: error.message});
 
     }
@@ -198,7 +199,7 @@ const getProductoporId = async(req, res)=>{
         const producto = await Producto.findById(id);
         res.json(producto);
     } catch (error) {
-        console.error(error);
+        ;
         res.status(404).json({message: error.message});
 
     }
@@ -211,7 +212,7 @@ const getServiceporId = async(req, res)=>{
         const servicio = await Servicio.findById(id);
         res.json(servicio);
     } catch (error) {
-        console.error(error);
+        ;
         res.status(404).json({message: error.message});
 
     }
@@ -254,7 +255,7 @@ const getProductoPorUsuario = async(req, res = response) => {
             productoslistados
         });
     } catch (error) {
-        console.error(error);
+        ;
         res.status(500).json({
             msg: 'Error en el servidor'
         });
@@ -295,7 +296,7 @@ const getServicioPorUsuario = async(req, res = response) => {
             servicioslistados
         });
     } catch (error) {
-        console.error(error);
+        ;
         res.status(500).json({
             msg: 'Error en el servidor'
         });
@@ -333,7 +334,7 @@ const actualizarProducto = async(req, res) => {
 
         res.json(producto);
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         });
@@ -370,7 +371,7 @@ const actualizarServicio = async (req, res) => {
 
         res.json(servicio);
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         });
@@ -407,7 +408,7 @@ const eliminarServicio = async(req, res)=>{
         })
 
     } catch (error) {
-        console.log(error);
+        
         res.status(404).json({
             msg: 'error'
         })
@@ -446,7 +447,7 @@ const eliminarProducto = async(req, res)=>{
         })
 
     } catch (error) {
-        console.log(error);
+        
         res.status(404).json({
             msg: 'error'
         })
@@ -461,8 +462,6 @@ const comprarProducto =async(req, res) => {
     const {cantidad, ids} = req.body
     const uid = req.uid;
     let total = 0
-
-    console.log(cantidad, ids)
   
 
     try {
@@ -481,7 +480,7 @@ const comprarProducto =async(req, res) => {
             for (let i = 0; i < ids.length; i++) {
                 let producto = await Producto.findOne({ _id: ids[i] });
                 const usuariovendedor = producto.usuarioId
-                console.log(producto)
+
 
                 if (!producto) {
                     return res.status(404).json({
@@ -492,7 +491,7 @@ const comprarProducto =async(req, res) => {
                 let cant = cantidad[i]
                 producto.stock = producto.stock - cant
 
-                console.log(producto.precio , cant)
+                
                 //obtener precio del total
                 total += producto.precio * cant
                 // asignar la compra del producto al comprador 
@@ -514,7 +513,7 @@ const comprarProducto =async(req, res) => {
                 
             }
 
-            console.log(total);
+      
             //obtner el link de pago
             const link = await generarLinkDePago(total);
 
@@ -530,7 +529,7 @@ const comprarProducto =async(req, res) => {
         }
         
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         });
@@ -566,7 +565,7 @@ const actualizarCompra = async (req, res)=>{
             msg:"compra actualizada a estado" + estado
         })
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         });
@@ -595,7 +594,7 @@ const confirmarEntrega = async (req, res) => {
 
         res.json({ msg: 'Entrega confirmada por el comprador', compra });
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         });
@@ -629,7 +628,7 @@ const agregarComentario = async (req, res)=>{
                 msg:"las estrellas van de 1 a 5"
             })
         }
-        console.log(Object(compra.producto._id));
+  
         const idProducto = compra.producto._id
         const nuevoComentario = {
             estrellas,
@@ -653,7 +652,7 @@ const agregarComentario = async (req, res)=>{
         });
         
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         }); 
@@ -670,7 +669,7 @@ const crearCategoria = async (req, res) => {
     try {
         //verificar que no exista una categoria con el mismo nombre
         const mismaCategoria = await Categoria.find({categoria})
-        console.log(mismaCategoria)
+      
         if(mismaCategoria.length > 0){
             return res.json({
                 msg: "Ya existe categoria con ese nombre"
@@ -684,7 +683,7 @@ const crearCategoria = async (req, res) => {
             categoria: nuevaCategoria
         });
     } catch (error) {
-        console.error(error);
+
         res.status(500).json({ msg: 'Error al crear la categoría', error });
     }
 };
@@ -709,7 +708,6 @@ const agregarSubcategoria = async (req, res) => {
             categoria
         });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ msg: 'Error al agregar la subcategoría', error });
     }
 };
@@ -735,7 +733,7 @@ const editarCategoria = async (req, res) => {
             categoria: categoriaEditada
         });
     } catch (error) {
-        console.error(error);
+
         res.status(500).json({ msg: 'Error al editar la categoría', error });
     }
 };
@@ -756,7 +754,7 @@ const eliminarCategoria = async (req, res) => {
             categoria: categoriaEliminada
         });
     } catch (error) {
-        console.error(error);
+
         res.status(500).json({ msg: 'Error al eliminar la categoría', error });
     }
 };
@@ -771,7 +769,6 @@ const obtenerCategoriasVisibles = async (req, res) => {
             categorias
         });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ msg: 'Error al obtener las categorías', error });
     }
 };
@@ -780,14 +777,14 @@ const obtenerSubCategoriasVisibles = async (req, res) => {
     const categoria = req.query.categoria
     try {
         const categorias = await Categoria.find({ visibilidad: true, categoria });
-        console.log(categorias)
+
         const subcategorias = categorias[0].subcategoria
 
         res.status(200).json({
             subcategorias
         });
     } catch (error) {
-        console.error(error);
+       
         res.status(500).json({ msg: 'Error al obtener las categorías', error });
     }
 };
@@ -827,7 +824,7 @@ const crearOferta = async (req, res) => {
             oferta: nuevaOferta
         });
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({ msg: "Error al crear la oferta" });
     }
 };
@@ -856,7 +853,7 @@ const actualizarEtapa = async (req, res) => {
             oferta
         });
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({ msg: "Error al actualizar etapa" });
     }
 };
@@ -877,7 +874,7 @@ const borrarOferta = async (req, res) => {
             oferta
         });
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({ msg: "Error al actualizar la oferta" });
     }
 };
@@ -894,7 +891,7 @@ const borrarOfertaDefinitivamente = async (req, res) => {
             msg: "Oferta eliminada permanentemente"
         });
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({ msg: "Error al eliminar definitivamente la oferta" });
     }
 };
@@ -933,7 +930,7 @@ const subirImagenOferta = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({ msg: "Error al subir imagen" });
     }
 };
@@ -961,7 +958,7 @@ const ofertasTerminadas = async (req, res) =>{
         res.json(ofertasTerminadas)
         
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({ msg: "Error en peticion" });
     }
 
@@ -988,7 +985,7 @@ const ofertasPendientes = async (req, res) =>{
         res.json(ofertasPendientes)
         
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({ msg: "Error en peticion" });
     }
 
@@ -1016,7 +1013,7 @@ const ofertasFalsas = async (req, res) =>{
         res.json(ofertasInterrumpidas)
         
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({ msg: "Error en peticion" });
     }
 
@@ -1032,7 +1029,7 @@ const getOfertasPorId = async (req, res) =>{
         });
     }
 
-    console.log(usuario._id.toString())
+  
 
     try {
         let ofertaPorId;
@@ -1051,7 +1048,7 @@ const getOfertasPorId = async (req, res) =>{
         res.json(ofertaPorId)
         
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({ msg: "Error en peticion" });
     }
 
@@ -1105,7 +1102,7 @@ const agregarComentarioOferta = async (req, res)=>{
         });
         
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         }); 
@@ -1126,7 +1123,7 @@ const getOfertaporId = async (req, res)=>{
             oferta
         })
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         });  
@@ -1140,9 +1137,9 @@ const getOfertasporServicio = async (req, res)=>{
     try {
 
         const {usuarioId} = await Servicio.findById(idServicio);
-        console.log(usuarioId);
+    
         const idproevedor = usuarioId.toString()
-        console.log(idproevedor);
+        
         //buscar ofertas con ese id
 
         const ofertas = await Ofertas.find({
@@ -1154,7 +1151,7 @@ const getOfertasporServicio = async (req, res)=>{
 
         
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         });  

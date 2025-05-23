@@ -22,7 +22,7 @@ const login = async(req, res = response) => {
                 msg: 'Usuario / Password no son correctos - correo'
             });
         }
-        console.log(usuario)
+
         // SI el usuario está activo
         if ( !usuario.estado ) {
             return res.status(400).json({
@@ -47,7 +47,6 @@ const login = async(req, res = response) => {
         })
 
     } catch (error) {
-        console.log(error)
         res.status(500).json({
             msg: 'Hable con el administrador'
         });

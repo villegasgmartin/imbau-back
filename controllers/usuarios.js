@@ -70,7 +70,6 @@ const AdminPost = async (req, res = response) => {
 const usuariosPut = async (req, res = response) => {
 
     const { id } = req.query;
-    console.log(id);
     const { _id, password, correo, ...resto } = req.body;
 
      // Buscar el usuario en las tres colecciones
@@ -133,7 +132,7 @@ const productosCompradosporUsuario = async (req, res) => {
 
 const productosvendidosporUsuario = async (req, res) => {
     const uid = req.uid;
-    console.log(uid)
+
     try {
         // Selecciona solo el campo 'producto' de las ventas del usuario
         const items = await Compra.find({ usuariovendedor: uid }).select('_id producto estado');
@@ -200,7 +199,7 @@ const actualizarEstadoCompraComprador = async(req, res) => {
             msg:"estado actualizado"
         });
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         });
@@ -220,7 +219,7 @@ const actualizarEstadoCompraVendedor = async(req, res) => {
                 msg: 'Debe estar logueado para actualizar productos'
             });
         }
-        console.log(id, uid);
+
         
         // Buscamos y actualizamos el producto
         let producto = await Compra.findOneAndUpdate(
@@ -241,7 +240,7 @@ const actualizarEstadoCompraVendedor = async(req, res) => {
             msg:"estado actualizado"
         });
     } catch (error) {
-        console.log(error);
+        
         res.status(500).json({
             msg: 'Error del servidor'
         });
@@ -287,7 +286,7 @@ const getOrCreateConversation = async (req, res) =>{
   //get de todos los chat creados
   const getChatsCliente = async(req, res) => {
       const uid = req.uid
-      console.log("usuario id", uid)
+
   
       try {
           const chat = await ChatImbau.find({
