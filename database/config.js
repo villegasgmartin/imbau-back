@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 
 const dbConnection = async () => {
     try {
-        await mongoose.connect("mongodb+srv://admin_imbau:yBeawTJc2oxjUrf9@imbau.yy0hgxm.mongodb.net/imbaudb", {
+        await mongoose.connect(process.env.MONGODB_URL_ATLAS, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             socketTimeoutMS: 45000, // opción de timeout
@@ -18,17 +18,6 @@ const dbConnection = async () => {
     }
 }
 
-//para prodcucio
-// const dbConnection = async () => {
-//     try {
-//         await mongoose.connect(process.env.MONGODB_URL_ATLAS);
-
-//         console.log('Connected');
-//     } catch (error) {
-//         console.error(error);
-//         throw new Error('Error en la connection: ' + error.message);
-//     }
-// }
 
 
 

@@ -21,7 +21,7 @@ const crearChat = async (req, res) => {
 
 const obtenerChats = async (req, res) => {
     const userId = req.userId;
-    console.log("id proevedor", userId)
+ 
 
     try {
         const chats = await Chat.find({

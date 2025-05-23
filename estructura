@@ -1,0 +1,45 @@
+.
+├── controllers
+│   ├── admin.js
+│   ├── auth.js
+│   ├── buscar.js
+│   ├── chat.js
+│   ├── Prod-Serv.js
+│   └── usuarios.js
+├── database
+│   └── config.js
+├── helpers
+│   ├── db-validators.js
+│   └── generar-jwt.js
+├── index.js
+├── middlewares
+│   ├── index.js
+│   ├── mercado-pago.js
+│   ├── validar-campos.js
+│   ├── validar-jwt.js
+│   └── validar-roles.js
+├── models
+│   ├── banner.js
+│   ├── categoria
+│   ├── ChatImbau.js
+│   ├── compras.js
+│   ├── index.js
+│   ├── ofertas.js
+│   ├── producto.js
+│   ├── role.js
+│   ├── server.js
+│   ├── Servicio.js
+│   ├── usuario.js
+│   └── usuarioAdmin.js
+├── package-lock.json
+├── package.json
+├── public
+│   └── index.html
+├── routes
+│   ├── admin.js
+│   ├── auth.js
+│   ├── buscar.js
+│   ├── chat.js
+│   ├── prod-serv.js
+│   └── usuarios.js
+└── uploads

@@ -15,8 +15,6 @@ const logout = (req, res) => {
 
 	// Agregar el token a la lista negra
 	revokedTokens.add(token);
-    // Mostrando los tokens revocados en consola
-    console.log('Tokens revocados:', [...revokedTokens]);
 	// Respondemos con éxito al usuario
 	res.status(200).json({ message: 'Logged out successfully' });
 };
@@ -35,14 +33,13 @@ const validarJWT = async( req = request, res = response, next ) => {
     // Verificar si el token está en la lista negra
     if (revokedTokens.has(tokenListaNegra)) {
        
-        console.log('token en lista negra');
         return res.json({ msg: 'Token Invalido' });
     }
 
     try {
         
-        const { uid } = jwt.verify( token, "s#c$3rt!mb@uVAl()3" );
-        console.log(uid)
+        const { uid } = jwt.verify( token,process.env.SECRETORPRIVATEKEY );
+     
         req.uid = uid;
 
         // leer el usuario que corresponde al uid
@@ -69,7 +66,7 @@ const validarJWT = async( req = request, res = response, next ) => {
 
     } catch (error) {
 
-        console.log(error);
+        
         res.status(401).json({
             msg: 'Token no válido'
         })

@@ -19,7 +19,7 @@ async function generarLinkDePago(precio) {
         ],
       },
     });
-    console.log(response.init_point);
+
     return response.init_point
     
   } catch (error) {
